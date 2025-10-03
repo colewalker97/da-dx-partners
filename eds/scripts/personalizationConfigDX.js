@@ -6,22 +6,18 @@ import {
   isMember,
   partnerIsSignedIn,
   signedInNonMember,
-  isSPPOnly,
-  isTPPOnly,
-  isSPPandTPP,
+  // isSPPOnly,
+  // isTPPOnly,
+  // isSPPandTPP,
   getPartnerDataCookieValue
 } from './utils.js';
 import { PARTNER_LEVEL } from '../blocks/utils/dxConstants.js';
 
 export const PERSONALIZATION_PLACEHOLDERS = {
-  'spp-firstName': '//*[contains(text(), "$spp-firstName")]',
-  'tpp-firstName': '//*[contains(text(), "$tpp-firstName")]',
-  'spp-level': '//*[contains(text(), "$spp-level")]',
-  'tpp-level': '//*[contains(text(), "$tpp-level")]',
-  'spp-primaryJobRole': '//*[contains(text(), "$spp-primaryJobRole")]',
-  'tpp-primaryJobRole': '//*[contains(text(), "$tpp-primaryJobRole")]',
-  'spp-accountName': '//*[contains(text(), "$spp-accountName")]',
-  'tpp-accountName': '//*[contains(text(), "$tpp-accountName")]',
+  'dxp-firstName': '//*[contains(text(), "$dxp-firstName")]',
+  'dxp-level': '//*[contains(text(), "$dxp-level")]',
+  'dxp-primaryJobRole': '//*[contains(text(), "$dxp-primaryJobRole")]',
+  'dxp-accountName': '//*[contains(text(), "$dxp-accountName")]',
 };
 
 export const LEVEL_CONDITION = 'partner-level';
@@ -34,9 +30,9 @@ export const PERSONALIZATION_CONDITIONS = {
   'partner-member': isMember(),
   'partner-sales-access': hasSalesCenterAccess(),
   'partner-level': (level) => PARTNER_LEVEL === level,
-  'partner-spp-member': isSPPOnly(),
-  'partner-tpp-member': isTPPOnly(),
-  'partner-spp-tpp-member': isSPPandTPP(),
+  // 'partner-spp-member': isSPPOnly(),
+  // 'partner-tpp-member': isTPPOnly(),
+  // 'partner-spp-tpp-member': isSPPandTPP(),
   'partner-admin': isAdminUser(),
   'partner-primary': getPartnerDataCookieValue('primarycontact'),
   'partner-newly-registered': isPartnerNewlyRegistered(),

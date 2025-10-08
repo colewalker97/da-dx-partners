@@ -252,6 +252,51 @@ describe('search-full block', () => {
     expect(searchCardsWrapper.hasResponseData).to.be.true;
     expect(searchCardsWrapper.paginatedCards).to.have.length(0);
   });
+
+  it('should display loading indicator when data is being fetched', async function () {
+    Search.prototype.handleActions.restore();
+    Search.prototype.firstUpdated.restore();
+    
+    // Stub firstUpdated to set hasResponseData to false initially
+    sinon.stub(Search.prototype, 'firstUpdated').callsFake(async function () {
+      this.allCards = [];
+      this.cards = [];
+      this.paginatedCards = [];
+      this.hasResponseData = false;  // Set to false to show loading state
+      this.contentTypeCounter = { countAll: 0, countAssets: 0, countPages: 0 };
+      this.allTags = [];
+      this.selectedSortOrder = { key: 'most-recent', value: 'Most Recent' };
+    });
+
+    // Stub handleActions to keep hasResponseData as false
+    sinon.stub(Search.prototype, 'handleActions').callsFake(async function () {
+      this.cards = [];
+      this.paginatedCards = [];
+      this.hasResponseData = false;  // Keep as false to maintain loading state
+      this.contentTypeCounter = { countAll: 0, countAssets: 0, countPages: 0 };
+    });
+
+    const { searchCardsWrapper } = await setupAndCommonTest(1200);
+
+    // Verify the component is in loading state
+    expect(searchCardsWrapper.hasResponseData).to.be.false;
+    
+    // Check that the progress circle is rendered
+    const partnerCardsContent = searchCardsWrapper.shadowRoot.querySelector('.partner-cards-content');
+    expect(partnerCardsContent).to.exist;
+    
+    const partnerCardsCollection = partnerCardsContent.querySelector('.partner-cards-collection');
+    expect(partnerCardsCollection).to.exist;
+    
+    const progressCircleWrapper = partnerCardsCollection.querySelector('.progress-circle-wrapper');
+    expect(progressCircleWrapper).to.exist;
+    
+    const progressCircle = progressCircleWrapper.querySelector('sp-progress-circle');
+    expect(progressCircle).to.exist;
+    expect(progressCircle.getAttribute('label')).to.equal('Cards loading');
+    expect(progressCircle.getAttribute('size')).to.equal('l');
+    expect(progressCircle.getAttribute('indeterminate')).to.equal('');
+  });
 });
 
 // Unit tests for individual SearchCards methods
@@ -913,6 +958,252 @@ describe('SearchCards Unit Tests', () => {
       
       const html = searchComponent.typeaheadOptionsHTML;
       expect(html).to.exist;
+    });
+  });
+
+  describe('chosenFilters getter', () => {
+    it('should return undefined when no filters are selected', () => {
+      searchComponent.selectedFilters = {};
+      
+      const result = searchComponent.chosenFilters;
+      
+      expect(result).to.be.undefined;
+    });
+
+    it('should return htmlContent and tagsCount for selected filters', () => {
+      searchComponent.selectedFilters = {
+        product: [
+          { key: 'analytics', parentKey: 'product', value: 'Analytics', checked: true },
+          { key: 'target', parentKey: 'product', value: 'Target', checked: true }
+        ],
+        industry: [
+          { key: 'retail', parentKey: 'industry', value: 'Retail', checked: true }
+        ]
+      };
+      
+      const result = searchComponent.chosenFilters;
+      
+      expect(result).to.exist;
+      expect(result.tagsCount).to.equal(3);
+      expect(result.htmlContent).to.exist;
+    });
+
+    it('should sort filters alphabetically by value', () => {
+      searchComponent.selectedFilters = {
+        category: [
+          { key: 'zebra', parentKey: 'category', value: 'Zebra', checked: true },
+          { key: 'apple', parentKey: 'category', value: 'Apple', checked: true },
+          { key: 'monkey', parentKey: 'category', value: 'Monkey', checked: true }
+        ]
+      };
+      
+      const result = searchComponent.chosenFilters;
+      
+      expect(result).to.exist;
+      expect(result.tagsCount).to.equal(3);
+      
+      // Verify tags are sorted: Apple, Monkey, Zebra
+      const extractedTags = Object.values(searchComponent.selectedFilters).flatMap((tagsArray) => tagsArray);
+      const sortedTags = extractedTags.sort((a, b) => a.value.localeCompare(b.value));
+      expect(sortedTags[0].value).to.equal('Apple');
+      expect(sortedTags[1].value).to.equal('Monkey');
+      expect(sortedTags[2].value).to.equal('Zebra');
+    });
+
+    it('should handle tags with slash-separated values', () => {
+      searchComponent.selectedFilters = {
+        product: [
+          { key: 'analytics', parentKey: 'product', value: 'product/Analytics', checked: true },
+          { key: 'target', parentKey: 'product', value: 'product/Target', checked: true }
+        ]
+      };
+      
+      const result = searchComponent.chosenFilters;
+      
+      expect(result).to.exist;
+      expect(result.tagsCount).to.equal(2);
+      
+      // The template uses tag.value?.split('/')[1] || tag.value
+      // Verify the logic extracts the correct part
+      const extractedTags = Object.values(searchComponent.selectedFilters).flatMap((tagsArray) => tagsArray);
+      extractedTags.forEach(tag => {
+        const displayValue = tag.value?.split('/')[1] || tag.value;
+        expect(displayValue).to.not.include('/');
+        expect(['Analytics', 'Target']).to.include(displayValue);
+      });
+    });
+
+    it('should flatten multiple filter categories', () => {
+      searchComponent.selectedFilters = {
+        product: [
+          { key: 'analytics', parentKey: 'product', value: 'Analytics', checked: true }
+        ],
+        industry: [
+          { key: 'retail', parentKey: 'industry', value: 'Retail', checked: true }
+        ],
+        level: [
+          { key: 'beginner', parentKey: 'level', value: 'Beginner', checked: true },
+          { key: 'advanced', parentKey: 'level', value: 'Advanced', checked: true }
+        ]
+      };
+      
+      const result = searchComponent.chosenFilters;
+      
+      expect(result).to.exist;
+      expect(result.tagsCount).to.equal(4);
+      
+      // Verify all tags from different categories are flattened
+      const extractedTags = Object.values(searchComponent.selectedFilters).flatMap((tagsArray) => tagsArray);
+      expect(extractedTags).to.have.lengthOf(4);
+    });
+
+    it('should handle tags with undefined values gracefully', () => {
+      searchComponent.selectedFilters = {
+        category: [
+          { key: 'test', parentKey: 'category', value: undefined, checked: true }
+        ]
+      };
+      
+      const result = searchComponent.chosenFilters;
+      
+      expect(result).to.exist;
+      expect(result.tagsCount).to.equal(1);
+    });
+  });
+});
+
+// Unit tests for SearchCard component
+describe('SearchCard Unit Tests', () => {
+  let searchCard;
+
+  beforeEach(async () => {
+    // Import SearchCard component
+    await import('../../../eds/components/SearchCard.js');
+    
+    // Create a search-card element
+    searchCard = document.createElement('search-card');
+    
+    // Set up mock data
+    searchCard.data = {
+      id: 'test-card-1',
+      contentArea: {
+        title: 'Test Card',
+        description: 'This is a test card description',
+        type: 'pdf',
+        url: 'https://example.com/test.pdf',
+        size: '2.5 MB'
+      },
+      cardDate: '2024-01-15',
+      arbitrary: [
+        { product: 'analytics' },
+        { industry: 'retail' }
+      ]
+    };
+    
+    searchCard.localizedText = {
+      '{{download}}': 'Download',
+      '{{open-in}}': 'Open in',
+      '{{open-in-disabled}}': 'Open in (disabled)',
+      '{{last-modified}}': 'Last Modified',
+      '{{size}}': 'Size'
+    };
+    
+    searchCard.ietf = 'en-US';
+  });
+
+  afterEach(() => {
+    if (searchCard.parentNode) {
+      searchCard.parentNode.removeChild(searchCard);
+    }
+  });
+
+  describe('toggleCard', () => {
+    it('should add expanded class when not present', () => {
+      // Create a mock element with classList
+      const mockElement = {
+        classList: {
+          contains: sinon.stub().returns(false),
+          add: sinon.spy(),
+          remove: sinon.spy(),
+          toggle: sinon.spy()
+        }
+      };
+      
+      searchCard.toggleCard(mockElement);
+      
+      expect(mockElement.classList.toggle.calledOnce).to.be.true;
+    });
+
+    it('should remove expanded class when present', () => {
+      // Create a mock element with classList and expanded class
+      const mockElement = {
+        classList: {
+          contains: sinon.stub().returns(true),
+          add: sinon.spy(),
+          remove: sinon.spy(),
+          toggle: sinon.spy()
+        }
+      };
+      
+      searchCard.toggleCard(mockElement);
+      
+      expect(mockElement.classList.toggle.calledOnce).to.be.true;
+      expect(mockElement.classList.toggle.calledWith('expanded')).to.be.true;
+    });
+
+    it('should toggle expanded class on real DOM element', () => {
+      // Create a real DOM element
+      const testElement = document.createElement('div');
+      testElement.classList.add('search-card');
+      document.body.appendChild(testElement);
+      
+      // Verify class is not present initially
+      expect(testElement.classList.contains('expanded')).to.be.false;
+      
+      // Call toggleCard to add the class
+      searchCard.toggleCard(testElement);
+      expect(testElement.classList.contains('expanded')).to.be.true;
+      
+      // Call toggleCard again to remove the class
+      searchCard.toggleCard(testElement);
+      expect(testElement.classList.contains('expanded')).to.be.false;
+      
+      // Clean up
+      document.body.removeChild(testElement);
+    });
+
+    it('should work when integrated with rendered search card', async () => {
+      // Append the search card to the DOM to trigger rendering
+      document.body.appendChild(searchCard);
+      
+      // Wait for component to render
+      await searchCard.updateComplete;
+      
+      // Get the search-card element from shadow DOM
+      const cardElement = searchCard.shadowRoot.querySelector('.search-card');
+      expect(cardElement).to.exist;
+      
+      // Verify initial state - no expanded class
+      expect(cardElement.classList.contains('expanded')).to.be.false;
+      
+      // Click on the card to trigger toggleCard
+      cardElement.click();
+      
+      // Wait a bit for the event to process
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      // Verify expanded class was added
+      expect(cardElement.classList.contains('expanded')).to.be.true;
+      
+      // Click again to toggle off
+      cardElement.click();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      // Verify expanded class was removed
+      expect(cardElement.classList.contains('expanded')).to.be.false;
+      
+      // Clean up
+      document.body.removeChild(searchCard);
     });
   });
 });

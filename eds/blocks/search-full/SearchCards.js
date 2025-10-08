@@ -392,7 +392,7 @@ export default class Search extends PartnerCards {
                 `
                 : ''
               }
-              ${this.blockData.sort.items.length
+              ${this.blockData.sort?.items.length
                 ? html`
                   <div class="sort-wrapper">
                     <button class="sort-btn" @click="${this.toggleSort}">

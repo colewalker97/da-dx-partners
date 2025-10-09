@@ -159,7 +159,6 @@ export function shouldHideLinkGroup(elem) {
 
 function personalizeProfile(gnav) {
   const profile = gnav.querySelector('.profile');
-
   personalizePlaceholders(PERSONALIZATION_PLACEHOLDERS, profile, DX_PROGRAM_TYPE);
   personalizeDropdownElements(profile);
 }

@@ -341,7 +341,17 @@ describe('search-full block', () => {
       this.paginatedCards = this.cards.slice(0, 12);
       this.hasResponseData = true;
       this.contentTypeCounter = mockSearchResponse.count;
-      this.allTags = [];
+      this.allTags = {
+        namespaces: {
+          caas: {
+            tags: {
+              'analytics': { tagID: 'analytics', title: 'Analytics' },
+              'target': { tagID: 'target', title: 'Target' },
+              'retail': { tagID: 'retail', title: 'Retail' }
+            }
+          }
+        }
+      };
       this.selectedSortOrder = { key: 'most-recent', value: 'Most Recent' };
       
       // Set selectedFilters to trigger chosenFilters rendering

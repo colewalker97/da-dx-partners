@@ -3,7 +3,6 @@ import {
   getNodesByXPath,
   getPartnerDataCookieObject, getCurrentProgramType
 } from './utils.js';
-import { getConfig } from '../blocks/utils/utils.js';
 import {
   PERSONALIZATION_PLACEHOLDERS,
   PERSONALIZATION_MARKER,
@@ -18,19 +17,15 @@ import {DX_PROGRAM_TYPE} from "../blocks/utils/dxConstants.js";
 
 function personalizePlaceholders(placeholders, context = document, programType) {
   Object.entries(placeholders).forEach(([key, value]) => {
-    if (!key.startsWith(programType.toLowerCase())) {
-      return;
-    }
     const programData = getPartnerDataCookieObject(programType);
-    const transformedKey = key.replace(`${programType.toLowerCase()}-`, '');
-    const placeholderValue = programData[transformedKey];
+    const placeholderValue = programData[key];
     getNodesByXPath(value, context).forEach((el) => {
       if (!placeholderValue) {
         el.remove();
         return;
       }
       el.textContent = el.textContent.replace(`$${key}`, placeholderValue);
-      el.classList.add(`${transformedKey.toLowerCase()}-placeholder`);
+      el.classList.add(`${key.toLowerCase()}-placeholder`);
     });
   });
 }

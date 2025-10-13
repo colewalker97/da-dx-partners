@@ -461,7 +461,7 @@ export default class PartnerCards extends LitElement {
   }
 
   get filters() {
-    if (!this.blockData.filters.length) return;
+    if (!this.blockData.filters?.length) return;
 
     // eslint-disable-next-line consistent-return
     return html`${repeat(
@@ -565,8 +565,8 @@ export default class PartnerCards extends LitElement {
       extractedTags.sort((a, b) => a.value.localeCompare(b.value)),
       (tag) => tag.key,
       (tag) => html`
-        <button class="sidebar-chosen-filter-btn" @click="${() => this.handleRemoveTag(tag)}" aria-label="${tag.value?.split('/')[1] || tag.value}">
-          ${tag.value?.split('/')[1] || tag.value}
+        <button class="sidebar-chosen-filter-btn" @click="${() => this.handleRemoveTag(tag)}" aria-label="${tag.value}">
+          ${tag.value}
         </button>`,
     )}`;
 
@@ -574,8 +574,31 @@ export default class PartnerCards extends LitElement {
     return { htmlContent, tagsCount: extractedTags.length };
   }
 
+  flattenTags(obj) {
+    let result = [];
+    for (const key in obj) {
+      const tag = obj[key];
+      if (tag && typeof tag === 'object') {
+        result.push(tag);
+        if (tag.tags && Object.keys(tag.tags).length > 0) {
+          result = result.concat(this.flattenTags(tag.tags));
+        }
+      }
+    }
+    return result;
+  }
+
   getTagsByFilter(filter) {
     const { tags } = filter;
+
+    const allTagsObj = this.allTags.namespaces.caas.tags;
+    const allTags = this.flattenTags(allTagsObj);
+
+    tags.forEach((tag) => {
+      const tagKey = tag.key;
+      const foundTag = allTags.find((t) => t.tagID === tagKey);
+      if (foundTag) tag.value = foundTag.title;
+    });
 
     return html`${repeat(
       tags,
@@ -585,7 +608,7 @@ export default class PartnerCards extends LitElement {
         ?checked=${tag.checked}
         @change=${(event) => this.handleTag(event, tag, filter.key)}
       >
-        ${tag.value?.split('/')[1] || tag.value}
+        ${tag.value}
       </sp-checkbox></li>`,
     )}`;
   }

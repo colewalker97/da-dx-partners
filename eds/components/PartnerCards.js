@@ -61,7 +61,7 @@ export default class PartnerCards extends LitElement {
     this.searchInputPlaceholder = '{{search}}';
     this.searchInputLabel = '';
     this.allTags = [];
-    this.allTagsFlat = [];
+    this.allTagsFlatMap = new Map();
     this.cardFiltersSet = new Set();
     this.updateView = this.updateView.bind(this);
   }
@@ -84,7 +84,7 @@ export default class PartnerCards extends LitElement {
       }
       this.allTags = await caasTagsResponse.json();
       const allTagsObj = this.allTags.namespaces.caas.tags;
-      this.allTagsFlat = this.flattenTags(allTagsObj);
+      this.allTagsFlatMap = this.flattenTagsToMap(allTagsObj);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log('error', error);
@@ -126,8 +126,8 @@ export default class PartnerCards extends LitElement {
 
         const isCaasTag = filterTagsKeys[0]?.includes('caas:');
         const getTagValue = (tagKey) => 
-          isCaasTag 
-            ? this.allTagsFlat?.find(t => t.tagID === tagKey)?.title 
+          isCaasTag
+            ? this.allTagsFlatMap?.get(tagKey)?.title
             : this.blockData.localizedText[`{{${tagKey}}}`];
 
         const filterObj = {
@@ -583,18 +583,17 @@ export default class PartnerCards extends LitElement {
     return { htmlContent, tagsCount: extractedTags.length };
   }
 
-  flattenTags(obj) {
-    let result = [];
+  flattenTagsToMap(obj, map = new Map()) {
     for (const key in obj) {
       const tag = obj[key];
       if (tag && typeof tag === 'object') {
-        result.push(tag);
+        map.set(tag.path, tag);
         if (tag.tags && Object.keys(tag.tags).length > 0) {
-          result = result.concat(this.flattenTags(tag.tags));
+          this.flattenTagsToMap(tag.tags, map);
         }
       }
     }
-    return result;
+    return map;
   }
 
   getTagsByFilter(filter) {

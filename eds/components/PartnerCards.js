@@ -61,6 +61,7 @@ export default class PartnerCards extends LitElement {
     this.searchInputPlaceholder = '{{search}}';
     this.searchInputLabel = '';
     this.allTags = [];
+    this.allTagsFlat = [];
     this.cardFiltersSet = new Set();
     this.updateView = this.updateView.bind(this);
   }
@@ -82,6 +83,8 @@ export default class PartnerCards extends LitElement {
         throw new Error(`Get caas tags HTTP error! Status: ${caasTagsResponse.status}`);
       }
       this.allTags = await caasTagsResponse.json();
+      const allTagsObj = this.allTags.namespaces.caas.tags;
+      this.allTagsFlat = this.flattenTags(allTagsObj);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log('error', error);
@@ -121,13 +124,19 @@ export default class PartnerCards extends LitElement {
 
         if (!filterKey || !filterTagsKeys.length) return;
 
+        const isCaasTag = filterTagsKeys[0]?.includes('caas:');
+        const getTagValue = (tagKey) => 
+          isCaasTag 
+            ? this.allTagsFlat?.find(t => t.tagID === tagKey)?.title 
+            : this.blockData.localizedText[`{{${tagKey}}}`];
+
         const filterObj = {
           key: filterKey,
           value: this.blockData.localizedText[`{{${filterKey}}}`],
-          tags: filterTagsKeys.map((tagKey) => ({
+          tags: filterTagsKeys.map(tagKey => ({
             key: tagKey,
             parentKey: filterKey,
-            value: this.blockData.localizedText[`{{${tagKey}}}`],
+            value: getTagValue(tagKey),
             checked: false,
           })),
         };
@@ -590,16 +599,7 @@ export default class PartnerCards extends LitElement {
 
   getTagsByFilter(filter) {
     const { tags } = filter;
-
-    const allTagsObj = this.allTags.namespaces.caas.tags;
-    const allTags = this.flattenTags(allTagsObj);
-
-    tags.forEach((tag) => {
-      const tagKey = tag.key;
-      const foundTag = allTags.find((t) => t.tagID === tagKey);
-      if (foundTag) tag.value = foundTag.title;
-    });
-
+    
     return html`${repeat(
       tags,
       (tag) => tag.key,

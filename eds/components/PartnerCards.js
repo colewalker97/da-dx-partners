@@ -584,6 +584,9 @@ export default class PartnerCards extends LitElement {
   }
 
   flattenTagsToMap(obj, map = new Map()) {
+    if (!obj || typeof obj !== 'object') {
+      return map;
+    }
     for (const key in obj) {
       const tag = obj[key];
       if (tag && typeof tag === 'object') {

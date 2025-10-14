@@ -1061,32 +1061,36 @@ describe('SearchCards Unit Tests', () => {
     });
   });
 
-  describe('flattenTags', () => {
+  describe('flattenTagsToMap', () => {
     it('should flatten a simple tags object with no nested tags', () => {
       const tagsObj = {
-        tag1: { tagID: 'tag1', title: 'Tag 1', tags: {} },
-        tag2: { tagID: 'tag2', title: 'Tag 2', tags: {} },
+        tag1: { path: '/content/cq:tags/tag1', tagID: 'tag1', title: 'Tag 1', tags: {} },
+        tag2: { path: '/content/cq:tags/tag2', tagID: 'tag2', title: 'Tag 2', tags: {} },
       };
 
-      const result = searchComponent.flattenTags(tagsObj);
+      const result = searchComponent.flattenTagsToMap(tagsObj);
 
-      expect(result).to.have.lengthOf(2);
-      expect(result[0].tagID).to.equal('tag1');
-      expect(result[1].tagID).to.equal('tag2');
+      expect(result).to.be.instanceOf(Map);
+      expect(result.size).to.equal(2);
+      expect(result.get('/content/cq:tags/tag1').tagID).to.equal('tag1');
+      expect(result.get('/content/cq:tags/tag2').tagID).to.equal('tag2');
     });
 
     it('should flatten nested tags recursively', () => {
       const tagsObj = {
         parent1: {
+          path: '/content/cq:tags/parent1',
           tagID: 'parent1',
           title: 'Parent 1',
           tags: {
             child1: {
+              path: '/content/cq:tags/parent1/child1',
               tagID: 'child1',
               title: 'Child 1',
               tags: {},
             },
             child2: {
+              path: '/content/cq:tags/parent1/child2',
               tagID: 'child2',
               title: 'Child 2',
               tags: {},
@@ -1094,29 +1098,37 @@ describe('SearchCards Unit Tests', () => {
           },
         },
         parent2: {
+          path: '/content/cq:tags/parent2',
           tagID: 'parent2',
           title: 'Parent 2',
           tags: {},
         },
       };
 
-      const result = searchComponent.flattenTags(tagsObj);
+      const result = searchComponent.flattenTagsToMap(tagsObj);
 
-      expect(result).to.have.lengthOf(4);
-      expect(result.map(t => t.tagID)).to.include.members(['parent1', 'child1', 'child2', 'parent2']);
+      expect(result).to.be.instanceOf(Map);
+      expect(result.size).to.equal(4);
+      expect(result.get('/content/cq:tags/parent1').tagID).to.equal('parent1');
+      expect(result.get('/content/cq:tags/parent1/child1').tagID).to.equal('child1');
+      expect(result.get('/content/cq:tags/parent1/child2').tagID).to.equal('child2');
+      expect(result.get('/content/cq:tags/parent2').tagID).to.equal('parent2');
     });
 
     it('should handle deeply nested tags', () => {
       const tagsObj = {
         level1: {
+          path: '/content/cq:tags/level1',
           tagID: 'level1',
           title: 'Level 1',
           tags: {
             level2: {
+              path: '/content/cq:tags/level1/level2',
               tagID: 'level2',
               title: 'Level 2',
               tags: {
                 level3: {
+                  path: '/content/cq:tags/level1/level2/level3',
                   tagID: 'level3',
                   title: 'Level 3',
                   tags: {},
@@ -1127,51 +1139,54 @@ describe('SearchCards Unit Tests', () => {
         },
       };
 
-      const result = searchComponent.flattenTags(tagsObj);
+      const result = searchComponent.flattenTagsToMap(tagsObj);
 
-      expect(result).to.have.lengthOf(3);
-      expect(result[0].tagID).to.equal('level1');
-      expect(result[1].tagID).to.equal('level2');
-      expect(result[2].tagID).to.equal('level3');
+      expect(result).to.be.instanceOf(Map);
+      expect(result.size).to.equal(3);
+      expect(result.get('/content/cq:tags/level1').tagID).to.equal('level1');
+      expect(result.get('/content/cq:tags/level1/level2').tagID).to.equal('level2');
+      expect(result.get('/content/cq:tags/level1/level2/level3').tagID).to.equal('level3');
     });
 
     it('should handle empty tags object', () => {
       const tagsObj = {};
 
-      const result = searchComponent.flattenTags(tagsObj);
+      const result = searchComponent.flattenTagsToMap(tagsObj);
 
-      expect(result).to.be.an('array');
-      expect(result).to.have.lengthOf(0);
+      expect(result).to.be.instanceOf(Map);
+      expect(result.size).to.equal(0);
     });
 
     it('should skip null or undefined tags', () => {
       const tagsObj = {
-        tag1: { tagID: 'tag1', title: 'Tag 1', tags: {} },
+        tag1: { path: '/content/cq:tags/tag1', tagID: 'tag1', title: 'Tag 1', tags: {} },
         tag2: null,
         tag3: undefined,
-        tag4: { tagID: 'tag4', title: 'Tag 4', tags: {} },
+        tag4: { path: '/content/cq:tags/tag4', tagID: 'tag4', title: 'Tag 4', tags: {} },
       };
 
-      const result = searchComponent.flattenTags(tagsObj);
+      const result = searchComponent.flattenTagsToMap(tagsObj);
 
-      expect(result).to.have.lengthOf(2);
-      expect(result[0].tagID).to.equal('tag1');
-      expect(result[1].tagID).to.equal('tag4');
+      expect(result).to.be.instanceOf(Map);
+      expect(result.size).to.equal(2);
+      expect(result.get('/content/cq:tags/tag1').tagID).to.equal('tag1');
+      expect(result.get('/content/cq:tags/tag4').tagID).to.equal('tag4');
     });
 
     it('should skip non-object values', () => {
       const tagsObj = {
-        tag1: { tagID: 'tag1', title: 'Tag 1', tags: {} },
+        tag1: { path: '/content/cq:tags/tag1', tagID: 'tag1', title: 'Tag 1', tags: {} },
         tag2: 'string value',
         tag3: 123,
-        tag4: { tagID: 'tag4', title: 'Tag 4', tags: {} },
+        tag4: { path: '/content/cq:tags/tag4', tagID: 'tag4', title: 'Tag 4', tags: {} },
       };
 
-      const result = searchComponent.flattenTags(tagsObj);
+      const result = searchComponent.flattenTagsToMap(tagsObj);
 
-      expect(result).to.have.lengthOf(2);
-      expect(result[0].tagID).to.equal('tag1');
-      expect(result[1].tagID).to.equal('tag4');
+      expect(result).to.be.instanceOf(Map);
+      expect(result.size).to.equal(2);
+      expect(result.get('/content/cq:tags/tag1').tagID).to.equal('tag1');
+      expect(result.get('/content/cq:tags/tag4').tagID).to.equal('tag4');
     });
 
     it('should preserve all tag properties', () => {
@@ -1186,26 +1201,31 @@ describe('SearchCards Unit Tests', () => {
         },
       };
 
-      const result = searchComponent.flattenTags(tagsObj);
+      const result = searchComponent.flattenTagsToMap(tagsObj);
 
-      expect(result).to.have.lengthOf(1);
-      expect(result[0]).to.deep.equal(tagsObj.tag1);
-      expect(result[0].tagID).to.equal('caas:content-type/blog');
-      expect(result[0].title).to.equal('Blog');
+      expect(result).to.be.instanceOf(Map);
+      expect(result.size).to.equal(1);
+      const tag = result.get('/content/cq:tags/caas/content-type/blog');
+      expect(tag).to.deep.equal(tagsObj.tag1);
+      expect(tag.tagID).to.equal('caas:content-type/blog');
+      expect(tag.title).to.equal('Blog');
     });
 
     it('should handle mixed nested and non-nested tags', () => {
       const tagsObj = {
         simple: {
+          path: '/content/cq:tags/simple',
           tagID: 'simple',
           title: 'Simple',
           tags: {},
         },
         complex: {
+          path: '/content/cq:tags/complex',
           tagID: 'complex',
           title: 'Complex',
           tags: {
             nested1: {
+              path: '/content/cq:tags/complex/nested1',
               tagID: 'nested1',
               title: 'Nested 1',
               tags: {},
@@ -1214,11 +1234,13 @@ describe('SearchCards Unit Tests', () => {
         },
       };
 
-      const result = searchComponent.flattenTags(tagsObj);
+      const result = searchComponent.flattenTagsToMap(tagsObj);
 
-      expect(result).to.have.lengthOf(3);
-      const tagIds = result.map(t => t.tagID);
-      expect(tagIds).to.include.members(['simple', 'complex', 'nested1']);
+      expect(result).to.be.instanceOf(Map);
+      expect(result.size).to.equal(3);
+      expect(result.get('/content/cq:tags/simple').tagID).to.equal('simple');
+      expect(result.get('/content/cq:tags/complex').tagID).to.equal('complex');
+      expect(result.get('/content/cq:tags/complex/nested1').tagID).to.equal('nested1');
     });
   });
 
@@ -1229,15 +1251,18 @@ describe('SearchCards Unit Tests', () => {
           caas: {
             tags: {
               'content-type': {
+                path: '/content/cq:tags/caas/content-type',
                 tagID: 'caas:content-type',
                 title: 'Content Type',
                 tags: {
                   blog: {
+                    path: '/content/cq:tags/caas/content-type/blog',
                     tagID: 'caas:content-type/blog',
                     title: 'Blog',
                     tags: {},
                   },
                   video: {
+                    path: '/content/cq:tags/caas/content-type/video',
                     tagID: 'caas:content-type/video',
                     title: 'Video',
                     tags: {},
@@ -1257,15 +1282,13 @@ describe('SearchCards Unit Tests', () => {
       await searchComponent.fetchTags();
 
       expect(searchComponent.allTags).to.deep.equal(mockTagsResponse);
-      expect(searchComponent.allTagsFlat).to.be.an('array');
-      expect(searchComponent.allTagsFlat).to.have.lengthOf(3);
+      expect(searchComponent.allTagsFlatMap).to.be.instanceOf(Map);
+      expect(searchComponent.allTagsFlatMap.size).to.equal(3);
       
-      const tagIds = searchComponent.allTagsFlat.map(t => t.tagID);
-      expect(tagIds).to.include.members([
-        'caas:content-type',
-        'caas:content-type/blog',
-        'caas:content-type/video',
-      ]);
+      // Check that all expected tags are in the map
+      expect(searchComponent.allTagsFlatMap.has('/content/cq:tags/caas/content-type')).to.be.true;
+      expect(searchComponent.allTagsFlatMap.has('/content/cq:tags/caas/content-type/blog')).to.be.true;
+      expect(searchComponent.allTagsFlatMap.has('/content/cq:tags/caas/content-type/video')).to.be.true;
     });
 
     it('should handle empty tags structure', async () => {
@@ -1285,8 +1308,8 @@ describe('SearchCards Unit Tests', () => {
       await searchComponent.fetchTags();
 
       expect(searchComponent.allTags).to.deep.equal(mockTagsResponse);
-      expect(searchComponent.allTagsFlat).to.be.an('array');
-      expect(searchComponent.allTagsFlat).to.have.lengthOf(0);
+      expect(searchComponent.allTagsFlatMap).to.be.instanceOf(Map);
+      expect(searchComponent.allTagsFlatMap.size).to.equal(0);
     });
 
     it('should handle fetch error gracefully', async () => {
@@ -1300,7 +1323,7 @@ describe('SearchCards Unit Tests', () => {
 
       // allTags should remain as initialized (empty array)
       expect(searchComponent.allTags).to.be.an('array');
-      expect(searchComponent.allTagsFlat).to.be.an('array');
+      expect(searchComponent.allTagsFlatMap).to.be.instanceOf(Map);
     });
 
     it('should handle network error gracefully', async () => {
@@ -1311,7 +1334,7 @@ describe('SearchCards Unit Tests', () => {
 
       // allTags should remain as initialized
       expect(searchComponent.allTags).to.be.an('array');
-      expect(searchComponent.allTagsFlat).to.be.an('array');
+      expect(searchComponent.allTagsFlatMap).to.be.instanceOf(Map);
     });
 
     it('should handle complex nested structure with multiple levels', async () => {
@@ -1320,14 +1343,17 @@ describe('SearchCards Unit Tests', () => {
           caas: {
             tags: {
               category1: {
+                path: '/content/cq:tags/cat1',
                 tagID: 'cat1',
                 title: 'Category 1',
                 tags: {
                   subcategory1: {
+                    path: '/content/cq:tags/cat1/subcat1',
                     tagID: 'subcat1',
                     title: 'Subcategory 1',
                     tags: {
                       item1: {
+                        path: '/content/cq:tags/cat1/subcat1/item1',
                         tagID: 'item1',
                         title: 'Item 1',
                         tags: {},
@@ -1337,6 +1363,7 @@ describe('SearchCards Unit Tests', () => {
                 },
               },
               category2: {
+                path: '/content/cq:tags/cat2',
                 tagID: 'cat2',
                 title: 'Category 2',
                 tags: {},
@@ -1353,9 +1380,12 @@ describe('SearchCards Unit Tests', () => {
 
       await searchComponent.fetchTags();
 
-      expect(searchComponent.allTagsFlat).to.have.lengthOf(4);
-      const tagIds = searchComponent.allTagsFlat.map(t => t.tagID);
-      expect(tagIds).to.include.members(['cat1', 'subcat1', 'item1', 'cat2']);
+      expect(searchComponent.allTagsFlatMap).to.be.instanceOf(Map);
+      expect(searchComponent.allTagsFlatMap.size).to.equal(4);
+      expect(searchComponent.allTagsFlatMap.has('/content/cq:tags/cat1')).to.be.true;
+      expect(searchComponent.allTagsFlatMap.has('/content/cq:tags/cat1/subcat1')).to.be.true;
+      expect(searchComponent.allTagsFlatMap.has('/content/cq:tags/cat1/subcat1/item1')).to.be.true;
+      expect(searchComponent.allTagsFlatMap.has('/content/cq:tags/cat2')).to.be.true;
     });
   });
 

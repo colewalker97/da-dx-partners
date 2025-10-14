@@ -1072,8 +1072,8 @@ describe('SearchCards Unit Tests', () => {
 
       expect(result).to.be.instanceOf(Map);
       expect(result.size).to.equal(2);
-      expect(result.get('/content/cq:tags/tag1').tagID).to.equal('tag1');
-      expect(result.get('/content/cq:tags/tag2').tagID).to.equal('tag2');
+      expect(result.get('tag1').tagID).to.equal('tag1');
+      expect(result.get('tag2').tagID).to.equal('tag2');
     });
 
     it('should flatten nested tags recursively', () => {
@@ -1109,10 +1109,10 @@ describe('SearchCards Unit Tests', () => {
 
       expect(result).to.be.instanceOf(Map);
       expect(result.size).to.equal(4);
-      expect(result.get('/content/cq:tags/parent1').tagID).to.equal('parent1');
-      expect(result.get('/content/cq:tags/parent1/child1').tagID).to.equal('child1');
-      expect(result.get('/content/cq:tags/parent1/child2').tagID).to.equal('child2');
-      expect(result.get('/content/cq:tags/parent2').tagID).to.equal('parent2');
+      expect(result.get('parent1').tagID).to.equal('parent1');
+      expect(result.get('child1').tagID).to.equal('child1');
+      expect(result.get('child2').tagID).to.equal('child2');
+      expect(result.get('parent2').tagID).to.equal('parent2');
     });
 
     it('should handle deeply nested tags', () => {
@@ -1143,9 +1143,9 @@ describe('SearchCards Unit Tests', () => {
 
       expect(result).to.be.instanceOf(Map);
       expect(result.size).to.equal(3);
-      expect(result.get('/content/cq:tags/level1').tagID).to.equal('level1');
-      expect(result.get('/content/cq:tags/level1/level2').tagID).to.equal('level2');
-      expect(result.get('/content/cq:tags/level1/level2/level3').tagID).to.equal('level3');
+      expect(result.get('level1').tagID).to.equal('level1');
+      expect(result.get('level2').tagID).to.equal('level2');
+      expect(result.get('level3').tagID).to.equal('level3');
     });
 
     it('should handle empty tags object', () => {
@@ -1204,8 +1204,8 @@ describe('SearchCards Unit Tests', () => {
 
       expect(result).to.be.instanceOf(Map);
       expect(result.size).to.equal(2);
-      expect(result.get('/content/cq:tags/tag1').tagID).to.equal('tag1');
-      expect(result.get('/content/cq:tags/tag4').tagID).to.equal('tag4');
+      expect(result.get('tag1').tagID).to.equal('tag1');
+      expect(result.get('tag4').tagID).to.equal('tag4');
     });
 
     it('should skip non-object values', () => {
@@ -1220,8 +1220,8 @@ describe('SearchCards Unit Tests', () => {
 
       expect(result).to.be.instanceOf(Map);
       expect(result.size).to.equal(2);
-      expect(result.get('/content/cq:tags/tag1').tagID).to.equal('tag1');
-      expect(result.get('/content/cq:tags/tag4').tagID).to.equal('tag4');
+      expect(result.get('tag1').tagID).to.equal('tag1');
+      expect(result.get('tag4').tagID).to.equal('tag4');
     });
 
     it('should preserve all tag properties', () => {
@@ -1240,7 +1240,7 @@ describe('SearchCards Unit Tests', () => {
 
       expect(result).to.be.instanceOf(Map);
       expect(result.size).to.equal(1);
-      const tag = result.get('/content/cq:tags/caas/content-type/blog');
+      const tag = result.get('caas:content-type/blog');
       expect(tag).to.deep.equal(tagsObj.tag1);
       expect(tag.tagID).to.equal('caas:content-type/blog');
       expect(tag.title).to.equal('Blog');
@@ -1273,9 +1273,9 @@ describe('SearchCards Unit Tests', () => {
 
       expect(result).to.be.instanceOf(Map);
       expect(result.size).to.equal(3);
-      expect(result.get('/content/cq:tags/simple').tagID).to.equal('simple');
-      expect(result.get('/content/cq:tags/complex').tagID).to.equal('complex');
-      expect(result.get('/content/cq:tags/complex/nested1').tagID).to.equal('nested1');
+      expect(result.get('simple').tagID).to.equal('simple');
+      expect(result.get('complex').tagID).to.equal('complex');
+      expect(result.get('nested1').tagID).to.equal('nested1');
     });
   });
 
@@ -1321,9 +1321,9 @@ describe('SearchCards Unit Tests', () => {
       expect(searchComponent.allTagsFlatMap.size).to.equal(3);
       
       // Check that all expected tags are in the map
-      expect(searchComponent.allTagsFlatMap.has('/content/cq:tags/caas/content-type')).to.be.true;
-      expect(searchComponent.allTagsFlatMap.has('/content/cq:tags/caas/content-type/blog')).to.be.true;
-      expect(searchComponent.allTagsFlatMap.has('/content/cq:tags/caas/content-type/video')).to.be.true;
+      expect(searchComponent.allTagsFlatMap.has('caas:content-type')).to.be.true;
+      expect(searchComponent.allTagsFlatMap.has('caas:content-type/blog')).to.be.true;
+      expect(searchComponent.allTagsFlatMap.has('caas:content-type/video')).to.be.true;
     });
 
     it('should handle empty tags structure', async () => {
@@ -1417,10 +1417,10 @@ describe('SearchCards Unit Tests', () => {
 
       expect(searchComponent.allTagsFlatMap).to.be.instanceOf(Map);
       expect(searchComponent.allTagsFlatMap.size).to.equal(4);
-      expect(searchComponent.allTagsFlatMap.has('/content/cq:tags/cat1')).to.be.true;
-      expect(searchComponent.allTagsFlatMap.has('/content/cq:tags/cat1/subcat1')).to.be.true;
-      expect(searchComponent.allTagsFlatMap.has('/content/cq:tags/cat1/subcat1/item1')).to.be.true;
-      expect(searchComponent.allTagsFlatMap.has('/content/cq:tags/cat2')).to.be.true;
+      expect(searchComponent.allTagsFlatMap.has('cat1')).to.be.true;
+      expect(searchComponent.allTagsFlatMap.has('subcat1')).to.be.true;
+      expect(searchComponent.allTagsFlatMap.has('item1')).to.be.true;
+      expect(searchComponent.allTagsFlatMap.has('cat2')).to.be.true;
     });
   });
 

@@ -1061,6 +1061,304 @@ describe('SearchCards Unit Tests', () => {
     });
   });
 
+  describe('flattenTags', () => {
+    it('should flatten a simple tags object with no nested tags', () => {
+      const tagsObj = {
+        tag1: { tagID: 'tag1', title: 'Tag 1', tags: {} },
+        tag2: { tagID: 'tag2', title: 'Tag 2', tags: {} },
+      };
+
+      const result = searchComponent.flattenTags(tagsObj);
+
+      expect(result).to.have.lengthOf(2);
+      expect(result[0].tagID).to.equal('tag1');
+      expect(result[1].tagID).to.equal('tag2');
+    });
+
+    it('should flatten nested tags recursively', () => {
+      const tagsObj = {
+        parent1: {
+          tagID: 'parent1',
+          title: 'Parent 1',
+          tags: {
+            child1: {
+              tagID: 'child1',
+              title: 'Child 1',
+              tags: {},
+            },
+            child2: {
+              tagID: 'child2',
+              title: 'Child 2',
+              tags: {},
+            },
+          },
+        },
+        parent2: {
+          tagID: 'parent2',
+          title: 'Parent 2',
+          tags: {},
+        },
+      };
+
+      const result = searchComponent.flattenTags(tagsObj);
+
+      expect(result).to.have.lengthOf(4);
+      expect(result.map(t => t.tagID)).to.include.members(['parent1', 'child1', 'child2', 'parent2']);
+    });
+
+    it('should handle deeply nested tags', () => {
+      const tagsObj = {
+        level1: {
+          tagID: 'level1',
+          title: 'Level 1',
+          tags: {
+            level2: {
+              tagID: 'level2',
+              title: 'Level 2',
+              tags: {
+                level3: {
+                  tagID: 'level3',
+                  title: 'Level 3',
+                  tags: {},
+                },
+              },
+            },
+          },
+        },
+      };
+
+      const result = searchComponent.flattenTags(tagsObj);
+
+      expect(result).to.have.lengthOf(3);
+      expect(result[0].tagID).to.equal('level1');
+      expect(result[1].tagID).to.equal('level2');
+      expect(result[2].tagID).to.equal('level3');
+    });
+
+    it('should handle empty tags object', () => {
+      const tagsObj = {};
+
+      const result = searchComponent.flattenTags(tagsObj);
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.lengthOf(0);
+    });
+
+    it('should skip null or undefined tags', () => {
+      const tagsObj = {
+        tag1: { tagID: 'tag1', title: 'Tag 1', tags: {} },
+        tag2: null,
+        tag3: undefined,
+        tag4: { tagID: 'tag4', title: 'Tag 4', tags: {} },
+      };
+
+      const result = searchComponent.flattenTags(tagsObj);
+
+      expect(result).to.have.lengthOf(2);
+      expect(result[0].tagID).to.equal('tag1');
+      expect(result[1].tagID).to.equal('tag4');
+    });
+
+    it('should skip non-object values', () => {
+      const tagsObj = {
+        tag1: { tagID: 'tag1', title: 'Tag 1', tags: {} },
+        tag2: 'string value',
+        tag3: 123,
+        tag4: { tagID: 'tag4', title: 'Tag 4', tags: {} },
+      };
+
+      const result = searchComponent.flattenTags(tagsObj);
+
+      expect(result).to.have.lengthOf(2);
+      expect(result[0].tagID).to.equal('tag1');
+      expect(result[1].tagID).to.equal('tag4');
+    });
+
+    it('should preserve all tag properties', () => {
+      const tagsObj = {
+        tag1: {
+          tagID: 'caas:content-type/blog',
+          title: 'Blog',
+          path: '/content/cq:tags/caas/content-type/blog',
+          description: 'Blog posts',
+          tagImage: 'https://example.com/blog.svg',
+          tags: {},
+        },
+      };
+
+      const result = searchComponent.flattenTags(tagsObj);
+
+      expect(result).to.have.lengthOf(1);
+      expect(result[0]).to.deep.equal(tagsObj.tag1);
+      expect(result[0].tagID).to.equal('caas:content-type/blog');
+      expect(result[0].title).to.equal('Blog');
+    });
+
+    it('should handle mixed nested and non-nested tags', () => {
+      const tagsObj = {
+        simple: {
+          tagID: 'simple',
+          title: 'Simple',
+          tags: {},
+        },
+        complex: {
+          tagID: 'complex',
+          title: 'Complex',
+          tags: {
+            nested1: {
+              tagID: 'nested1',
+              title: 'Nested 1',
+              tags: {},
+            },
+          },
+        },
+      };
+
+      const result = searchComponent.flattenTags(tagsObj);
+
+      expect(result).to.have.lengthOf(3);
+      const tagIds = result.map(t => t.tagID);
+      expect(tagIds).to.include.members(['simple', 'complex', 'nested1']);
+    });
+  });
+
+  describe('fetchTags', () => {
+    it('should fetch tags successfully and flatten them', async () => {
+      const mockTagsResponse = {
+        namespaces: {
+          caas: {
+            tags: {
+              'content-type': {
+                tagID: 'caas:content-type',
+                title: 'Content Type',
+                tags: {
+                  blog: {
+                    tagID: 'caas:content-type/blog',
+                    title: 'Blog',
+                    tags: {},
+                  },
+                  video: {
+                    tagID: 'caas:content-type/video',
+                    title: 'Video',
+                    tags: {},
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+
+      fetchStub.resolves({
+        ok: true,
+        json: () => Promise.resolve(mockTagsResponse),
+      });
+
+      await searchComponent.fetchTags();
+
+      expect(searchComponent.allTags).to.deep.equal(mockTagsResponse);
+      expect(searchComponent.allTagsFlat).to.be.an('array');
+      expect(searchComponent.allTagsFlat).to.have.lengthOf(3);
+      
+      const tagIds = searchComponent.allTagsFlat.map(t => t.tagID);
+      expect(tagIds).to.include.members([
+        'caas:content-type',
+        'caas:content-type/blog',
+        'caas:content-type/video',
+      ]);
+    });
+
+    it('should handle empty tags structure', async () => {
+      const mockTagsResponse = {
+        namespaces: {
+          caas: {
+            tags: {},
+          },
+        },
+      };
+
+      fetchStub.resolves({
+        ok: true,
+        json: () => Promise.resolve(mockTagsResponse),
+      });
+
+      await searchComponent.fetchTags();
+
+      expect(searchComponent.allTags).to.deep.equal(mockTagsResponse);
+      expect(searchComponent.allTagsFlat).to.be.an('array');
+      expect(searchComponent.allTagsFlat).to.have.lengthOf(0);
+    });
+
+    it('should handle fetch error gracefully', async () => {
+      fetchStub.resolves({
+        ok: false,
+        status: 404,
+      });
+
+      // Should not throw
+      await searchComponent.fetchTags();
+
+      // allTags should remain as initialized (empty array)
+      expect(searchComponent.allTags).to.be.an('array');
+      expect(searchComponent.allTagsFlat).to.be.an('array');
+    });
+
+    it('should handle network error gracefully', async () => {
+      fetchStub.rejects(new Error('Network error'));
+
+      // Should not throw
+      await searchComponent.fetchTags();
+
+      // allTags should remain as initialized
+      expect(searchComponent.allTags).to.be.an('array');
+      expect(searchComponent.allTagsFlat).to.be.an('array');
+    });
+
+    it('should handle complex nested structure with multiple levels', async () => {
+      const mockTagsResponse = {
+        namespaces: {
+          caas: {
+            tags: {
+              category1: {
+                tagID: 'cat1',
+                title: 'Category 1',
+                tags: {
+                  subcategory1: {
+                    tagID: 'subcat1',
+                    title: 'Subcategory 1',
+                    tags: {
+                      item1: {
+                        tagID: 'item1',
+                        title: 'Item 1',
+                        tags: {},
+                      },
+                    },
+                  },
+                },
+              },
+              category2: {
+                tagID: 'cat2',
+                title: 'Category 2',
+                tags: {},
+              },
+            },
+          },
+        },
+      };
+
+      fetchStub.resolves({
+        ok: true,
+        json: () => Promise.resolve(mockTagsResponse),
+      });
+
+      await searchComponent.fetchTags();
+
+      expect(searchComponent.allTagsFlat).to.have.lengthOf(4);
+      const tagIds = searchComponent.allTagsFlat.map(t => t.tagID);
+      expect(tagIds).to.include.members(['cat1', 'subcat1', 'item1', 'cat2']);
+    });
+  });
+
   describe('chosenFilters getter', () => {
     it('should return undefined when no filters are selected', () => {
       searchComponent.selectedFilters = {};

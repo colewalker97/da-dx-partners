@@ -1157,6 +1157,41 @@ describe('SearchCards Unit Tests', () => {
       expect(result.size).to.equal(0);
     });
 
+    it('should return empty map when passed null', () => {
+      const result = searchComponent.flattenTagsToMap(null);
+
+      expect(result).to.be.instanceOf(Map);
+      expect(result.size).to.equal(0);
+    });
+
+    it('should return empty map when passed undefined', () => {
+      const result = searchComponent.flattenTagsToMap(undefined);
+
+      expect(result).to.be.instanceOf(Map);
+      expect(result.size).to.equal(0);
+    });
+
+    it('should return empty map when passed a string', () => {
+      const result = searchComponent.flattenTagsToMap('invalid string');
+
+      expect(result).to.be.instanceOf(Map);
+      expect(result.size).to.equal(0);
+    });
+
+    it('should return empty map when passed a number', () => {
+      const result = searchComponent.flattenTagsToMap(123);
+
+      expect(result).to.be.instanceOf(Map);
+      expect(result.size).to.equal(0);
+    });
+
+    it('should return empty map when passed an array', () => {
+      const result = searchComponent.flattenTagsToMap([1, 2, 3]);
+
+      expect(result).to.be.instanceOf(Map);
+      expect(result.size).to.equal(0);
+    });
+
     it('should skip null or undefined tags', () => {
       const tagsObj = {
         tag1: { path: '/content/cq:tags/tag1', tagID: 'tag1', title: 'Tag 1', tags: {} },

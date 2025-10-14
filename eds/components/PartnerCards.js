@@ -61,6 +61,7 @@ export default class PartnerCards extends LitElement {
     this.searchInputPlaceholder = '{{search}}';
     this.searchInputLabel = '';
     this.allTags = [];
+    this.allTagsFlatMap = new Map();
     this.cardFiltersSet = new Set();
     this.updateView = this.updateView.bind(this);
   }
@@ -82,6 +83,8 @@ export default class PartnerCards extends LitElement {
         throw new Error(`Get caas tags HTTP error! Status: ${caasTagsResponse.status}`);
       }
       this.allTags = await caasTagsResponse.json();
+      const allTagsObj = this.allTags.namespaces.caas.tags;
+      this.allTagsFlatMap = this.flattenTagsToMap(allTagsObj);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log('error', error);
@@ -121,13 +124,19 @@ export default class PartnerCards extends LitElement {
 
         if (!filterKey || !filterTagsKeys.length) return;
 
+        const isCaasTag = filterTagsKeys[0]?.includes('caas:');
+        const getTagValue = (tagKey) => 
+          isCaasTag
+            ? this.allTagsFlatMap?.get(tagKey)?.title
+            : this.blockData.localizedText[`{{${tagKey}}}`];
+
         const filterObj = {
           key: filterKey,
           value: this.blockData.localizedText[`{{${filterKey}}}`],
-          tags: filterTagsKeys.map((tagKey) => ({
+          tags: filterTagsKeys.map(tagKey => ({
             key: tagKey,
             parentKey: filterKey,
-            value: this.blockData.localizedText[`{{${tagKey}}}`],
+            value: getTagValue(tagKey),
             checked: false,
           })),
         };
@@ -461,7 +470,7 @@ export default class PartnerCards extends LitElement {
   }
 
   get filters() {
-    if (!this.blockData.filters.length) return;
+    if (!this.blockData.filters?.length) return;
 
     // eslint-disable-next-line consistent-return
     return html`${repeat(
@@ -565,8 +574,8 @@ export default class PartnerCards extends LitElement {
       extractedTags.sort((a, b) => a.value.localeCompare(b.value)),
       (tag) => tag.key,
       (tag) => html`
-        <button class="sidebar-chosen-filter-btn" @click="${() => this.handleRemoveTag(tag)}" aria-label="${tag.value?.split('/')[1] || tag.value}">
-          ${tag.value?.split('/')[1] || tag.value}
+        <button class="sidebar-chosen-filter-btn" @click="${() => this.handleRemoveTag(tag)}" aria-label="${tag.value}">
+          ${tag.value}
         </button>`,
     )}`;
 
@@ -574,9 +583,25 @@ export default class PartnerCards extends LitElement {
     return { htmlContent, tagsCount: extractedTags.length };
   }
 
+  flattenTagsToMap(obj, map = new Map()) {
+    if (!obj || typeof obj !== 'object') {
+      return map;
+    }
+    for (const key in obj) {
+      const tag = obj[key];
+      if (tag && typeof tag === 'object') {
+        map.set(tag.path, tag);
+        if (tag.tags && Object.keys(tag.tags).length > 0) {
+          this.flattenTagsToMap(tag.tags, map);
+        }
+      }
+    }
+    return map;
+  }
+
   getTagsByFilter(filter) {
     const { tags } = filter;
-
+    
     return html`${repeat(
       tags,
       (tag) => tag.key,
@@ -585,7 +610,7 @@ export default class PartnerCards extends LitElement {
         ?checked=${tag.checked}
         @change=${(event) => this.handleTag(event, tag, filter.key)}
       >
-        ${tag.value?.split('/')[1] || tag.value}
+        ${tag.value}
       </sp-checkbox></li>`,
     )}`;
   }

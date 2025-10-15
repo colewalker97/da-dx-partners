@@ -1,6 +1,8 @@
 import { getLibs } from '../../scripts/utils.js';
 import { trainingPreviewStyles } from './TrainingPreviewStyles.js';
 // test page http://localhost:3000/digitalexperience/drafts/sonja/trainings/preview
+//https://mwpw-181343-tp--da-dx-partners--adobecom.aem.page/digitalexperience/drafts/sonja/trainings/preview
+//https://mwpw-181343-tp--da-dx-partners--adobecom.aem.page/digitalexperience/drafts/sonja/trainings/learningprogram74197
 const miloLibs = getLibs();
 const { html, LitElement } = await import(`${miloLibs}/deps/lit-all.min.js`);
 export default class TrainingPreview extends LitElement {
@@ -19,7 +21,8 @@ export default class TrainingPreview extends LitElement {
     // Create container for React to mount into
     const container = document.createElement('div');
     container.id = 'root_content_outer_position_component';
-    this.appendChild(container);
+    this.shadowRoot.appendChild(container);
+    document.body.appendChild(container);
 
     // Inject the CSS file (if not already added globally)
     const cssLink = document.createElement('link');
@@ -32,7 +35,7 @@ export default class TrainingPreview extends LitElement {
     script.src = '/eds/blocks/training-preview/dist/js/cptraining.min.js'; // adjust path
     script.type = 'text/javascript';
     script.async = true;
-    this.appendChild(script);
+    this.shadowRoot.appendChild(script);
   }
 
   async connectedCallback() {

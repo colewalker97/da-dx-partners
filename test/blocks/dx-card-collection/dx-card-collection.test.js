@@ -94,6 +94,7 @@ describe('dx-card-collection block', () => {
       this.paginatedCards = this.cards.slice(0, 3);
       this.hasResponseData = true;
       this.fetchedData = true;
+      this.allTags = tags;
     });
 
     const { partnerNewsWrapper } = await setupAndCommonTest(1200);

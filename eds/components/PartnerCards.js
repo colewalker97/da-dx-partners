@@ -136,7 +136,7 @@ export default class PartnerCards extends LitElement {
           tags: filterTagsKeys.map(tagKey => ({
             key: tagKey,
             parentKey: filterKey,
-            value: getTagValue(tagKey),
+            value: this.parseTag(getTagValue(tagKey)),
             checked: false,
           })),
         };
@@ -581,6 +581,10 @@ export default class PartnerCards extends LitElement {
 
     // eslint-disable-next-line consistent-return
     return { htmlContent, tagsCount: extractedTags.length };
+  }
+
+  parseTag(tag) {
+    return new DOMParser().parseFromString(tag, 'text/html').body.textContent;
   }
 
   flattenTagsToMap(obj, map = new Map()) {

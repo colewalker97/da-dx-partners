@@ -270,8 +270,8 @@ export default class AssetPreview extends LitElement {
 
   // eslint-disable-next-line class-methods-use-this
   getSizeInMb(size) {
-    const sizeInMb = Number(size / (1024 * 1024)).toFixed(2);
-    const sizeInKb = Number(size / 1024).toFixed(2);
+    const sizeInMb = Number(size / (1000 * 1000)).toFixed(1);
+    const sizeInKb = Number(size / 1000).toFixed(1);
     return sizeInMb >= 1 ? `${sizeInMb} MB` : `${sizeInKb} KB`;
   }
 

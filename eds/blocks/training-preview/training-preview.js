@@ -64,3 +64,4 @@ export default async function init(el) {
   performance.measure('training-preview block', 'training-preview:start', 'training-preview:end');
   return app;
 }
+

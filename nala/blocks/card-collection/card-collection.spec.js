@@ -168,7 +168,6 @@ export default {
         btnRoleAudience: 'button',
         checkBoxEnterpriseFilter: 'Enterprise',
         btnRoleEnterprise: 'checkbox',
-        // getByRole('checkbox', { name: 'Individual' })
         checkBoxIndividualFilter: 'Individual',
         btnRoleIndividual: 'checkbox',
       },

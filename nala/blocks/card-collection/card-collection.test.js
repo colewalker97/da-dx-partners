@@ -23,10 +23,10 @@ test.describe('Validate card collection block', () => {
   });
 
   // @card-collection-no-tags-configured
-  test(`${features[0].name},${features[0].tags}`, async ({ page, baseURL }) => {
+  test(`${features[0].name},${features[0].tags}`, async ({ page }) => {
     const { data } = features[0];
     await test.step('Go to card collection page', async () => {
-      await page.goto(`${baseURL}${features[0].path}`);
+      await page.goto(`${features[0].path}`);
       await page.waitForLoadState('networkidle');
       await cardCollectionPage.searchField.click();
       await cardCollectionPage.searchField.type(data.keyword);
@@ -55,7 +55,7 @@ test.describe('Validate card collection block', () => {
     });
   });
   // @card-collection-one-tag-configured
-  test(`${features[1].name},${features[1].tags}`, async ({ page, baseURL }) => {
+  test(`${features[1].name},${features[1].tags}`, async ({ page }) => {
     const { data } = features[1];
     await test.step('Go to card collection page', async () => {
       await page.goto(`${features[1].path}`);
@@ -69,7 +69,7 @@ test.describe('Validate card collection block', () => {
     });
   });
   // @card-collection-and-logic
-  test(`${features[2].name},${features[2].tags}`, async ({ page, baseURL }) => {
+  test(`${features[2].name},${features[2].tags}`, async ({ page }) => {
     const { data } = features[2];
     await test.step('Go to card collection page', async () => {
       await page.goto(`${features[2].path}`);
@@ -92,7 +92,7 @@ test.describe('Validate card collection block', () => {
     });
   });
   // @card-collection-or-logic
-  test(`${features[3].name},${features[3].tags}`, async ({ page, baseURL }) => {
+  test(`${features[3].name},${features[3].tags}`, async ({ page}) => {
     const { data } = features[3];
     await test.step('Go to card collection page', async () => {
       await page.goto(`${features[3].path}`);
@@ -104,7 +104,7 @@ test.describe('Validate card collection block', () => {
     });
   });
   // @card-collection-and-or-logic
-  test(`${features[4].name},${features[4].tags}`, async ({ page, baseURL }) => {
+  test(`${features[4].name},${features[4].tags}`, async ({ page }) => {
     const { data } = features[4];
     await test.step('Go to card collection page', async () => {
       await page.goto(`${features[4].path}`);
@@ -119,7 +119,7 @@ test.describe('Validate card collection block', () => {
     });
   });
   // @card-collection-page-without-cards
-  test(`${features[5].name},${features[5].tags}`, async ({ page, baseURL }) => {
+  test(`${features[5].name},${features[5].tags}`, async ({ page }) => {
     await test.step('Go to card collection page', async () => {
       await page.goto(`${features[5].path}`);
       await page.waitForLoadState('networkidle');
@@ -127,7 +127,7 @@ test.describe('Validate card collection block', () => {
     });
   });
   // @multiple-card-collections-on-one-page
-  test(`${features[6].name},${features[6].tags}`, async ({ page, baseURL }) => {
+  test(`${features[6].name},${features[6].tags}`, async ({ page }) => {
     const { data } = features[6];
     await test.step('Go to card collection page', async () => {
       await page.goto(`${features[6].path}`);
@@ -163,7 +163,7 @@ test.describe('Validate card collection block', () => {
     });
   });
   // @card-collection-mutually-exclusive-filters-across-groups
-  test(`${features[7].name},${features[7].tags}`, async ({ page, baseURL }) => {
+  test(`${features[7].name},${features[7].tags}`, async ({ page }) => {
     const { data } = features[7];
     await test.step('Go to card collection page', async () => {
       await page.goto(`${features[7].path}`);
@@ -186,7 +186,7 @@ test.describe('Validate card collection block', () => {
     });
   });
   // @card-collection-or-logic-inside-same-group
-  test(`${features[8].name},${features[8].tags}`, async ({ page, baseURL }) => {
+  test(`${features[8].name},${features[8].tags}`, async ({ page }) => {
     const { data } = features[8];
     await test.step('Go to card collection page', async () => {
       await page.goto(`${features[8].path}`);
@@ -203,7 +203,7 @@ test.describe('Validate card collection block', () => {
     });
   });
   // @card-collection-removing-one-of-several-active-filters
-  test(`${features[9].name},${features[9].tags}`, async ({ page, baseURL }) => {
+  test(`${features[9].name},${features[9].tags}`, async ({ page }) => {
     const { data } = features[9];
     await test.step('Go to card collection page', async () => {
       await page.goto(`${features[9].path}`);
@@ -222,7 +222,7 @@ test.describe('Validate card collection block', () => {
     });
   });
   // @card-collection-duplicate-tag-handling
-  test(`${features[10].name},${features[10].tags}`, async ({ page, baseURL }) => {
+  test(`${features[10].name},${features[10].tags}`, async ({ page }) => {
     const { data } = features[10];
     await test.step('Go to card collection page', async () => {
       await page.goto(`${features[10].path}`);
@@ -241,7 +241,7 @@ test.describe('Validate card collection block', () => {
     });
   });
   // @card-collection-overlapping-filters-inside-one-group
-  test(`${features[11].name},${features[11].tags}`, async ({ page, baseURL }) => {
+  test(`${features[11].name},${features[11].tags}`, async ({ page }) => {
     const { data } = features[11];
     await test.step('Go to card collection page', async () => {
       await page.goto(`${features[11].path}`);
@@ -260,11 +260,11 @@ test.describe('Validate card collection block', () => {
     });
   });
   // @card-collection-data-filter-test-case
-  test(`${features[12].name},${features[12].tags}`, async ({ page, baseURL }) => {
+  test(`${features[12].name},${features[12].tags}`, async ({ page }) => {
     const { data } = features[12];
     await test.step('Go to card collection page', async () => {
       await page.goto(`${features[12].path}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
     });
     await test.step('Check Product Categories Filter', async () => {
       await cardCollectionPage.filterCheckbox(data.btnRoleProductCategories, data.productCategoriesFilter).click();

@@ -13,7 +13,7 @@ import {
 
 const DEFAULT_BACKGROUND_IMAGE_PATH = '/content/dam/solution/en/images/card-collection/sample_default.png';
 
-const { default: DOMPurify } = await import('/node_modules/dompurify/dist/purify.es.mjs');
+// const { default: DOMPurify } = await import('/node_modules/dompurify/dist/purify.es.mjs');
 
 const miloLibs = getLibs();
 const { html, LitElement, unsafeHTML } = await import(`${miloLibs}/deps/lit-all.min.js`);
@@ -200,14 +200,14 @@ export default class AssetPreview extends LitElement {
   render() {
     return html`<div class="asset-preview-block-container">
       ${this.assetHasData && !this.isLoading ? html`
-          <div class="asset-preview-block-header"><p>${this.blockData.localizedText['{{Asset detail}}']}: ${unsafeHTML(DOMPurify.sanitize(this.title))}  ${this.getFileTypeFromTag() ? `(${this.getFileTypeFromTag()})` : ''}</p></div>
+          <div class="asset-preview-block-header"><p>${this.blockData.localizedText['{{Asset detail}}']}: ${unsafeHTML((this.title))}  ${this.getFileTypeFromTag() ? `(${this.getFileTypeFromTag()})` : ''}</p></div>
           <div class="asset-preview-block-details ">
             <div class="asset-preview-block-details-left">
               ${this.createdDate ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Date}}']}: </span>${this.createdDate}</p>` : ''}
-              ${this.getTagsTitlesString(this.audienceTags) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Audience}}']}: </span>${unsafeHTML(DOMPurify.sanitize(this.getTagsTitlesString(this.audienceTags)))}</p>` : ''}
-              ${(this.isVideo ? this.description : this.summary || this.description) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Summary}}']}: </span>${this.isVideo ? unsafeHTML(DOMPurify.sanitize(this.description)) : unsafeHTML(DOMPurify.sanitize(this.summary)) || unsafeHTML(DOMPurify.sanitize(this.description))}</p>` : ''}
-              ${this.getTagsTitlesString(this.fileFormatTags) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Type}}']}: </span>${unsafeHTML(DOMPurify.sanitize(this.getTagsTitlesString(this.fileFormatTags)))}</p>` : ''}
-              ${this.getTagsTitlesString(this.tags) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Tags}}']}: </span>${unsafeHTML(DOMPurify.sanitize(this.getTagsTitlesString(this.tags)))}</p>` : ''}
+              ${this.getTagsTitlesString(this.audienceTags) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Audience}}']}: </span>${unsafeHTML((this.getTagsTitlesString(this.audienceTags)))}</p>` : ''}
+              ${(this.isVideo ? this.description : this.summary || this.description) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Summary}}']}: </span>${this.isVideo ? unsafeHTML((this.description)) : unsafeHTML((this.summary)) || unsafeHTML((this.description))}</p>` : ''}
+              ${this.getTagsTitlesString(this.fileFormatTags) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Type}}']}: </span>${unsafeHTML((this.getTagsTitlesString(this.fileFormatTags)))}</p>` : ''}
+              ${this.getTagsTitlesString(this.tags) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Tags}}']}: </span>${unsafeHTML((this.getTagsTitlesString(this.tags)))}</p>` : ''}
               ${this.size ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Size}}']}: </span class="bold">${this.size}</p>` : ''}
             </div>
             <div class="asset-preview-block-details-right"

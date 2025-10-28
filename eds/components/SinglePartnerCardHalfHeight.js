@@ -27,7 +27,7 @@ class SinglePartnerCardHalfHeight extends LitElement {
       >
         <div class="card-title-wrapper">
           <p class="card-title">
-            ${unsafeHTML(DOMPurify.sanitize(this.data.contentArea?.title !== 'card-metadata' ? this.data.contentArea?.title : ''))}
+            ${unsafeHTML((this.data.contentArea?.title !== 'card-metadata' ? this.data.contentArea?.title : ''))}
           </p>
         </div>
       </a>

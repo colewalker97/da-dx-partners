@@ -2,7 +2,7 @@ import searchCardStyles from './SearchCardStyles.js';
 import { formatDate, getLibs } from '../scripts/utils.js';
 import { getConfig, replaceText } from '../blocks/utils/utils.js';
 
-const { default: DOMPurify } = await import('/node_modules/dompurify/dist/purify.es.mjs');
+// const { default: DOMPurify } = await import('/node_modules/dompurify/dist/purify.es.mjs');
 const miloLibs = getLibs();
 const config = getConfig();
 const { html, repeat, LitElement, until, unsafeHTML } = await import(`${miloLibs}/deps/lit-all.min.js`);
@@ -77,7 +77,7 @@ class SearchCard extends LitElement {
         : ''
       }
             </span>
-            <p class="card-description">${unsafeHTML(DOMPurify.sanitize(this.data.contentArea?.description))}</p>
+            <p class="card-description">${unsafeHTML((this.data.contentArea?.description))}</p>
             <div class="card-tags-wrapper">${this.cardTags}</div>
           </div>
         </div>

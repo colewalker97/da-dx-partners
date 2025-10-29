@@ -8,7 +8,7 @@ import './SinglePartnerCard.js';
 import './SinglePartnerCardHalfHeight.js';
 import { extractFilterData } from '../blocks/utils/caasUtils.js';
 
-import DOMPurify from 'dompurify';
+import DOMPurify from '../libs/deps/purify-wrapper.js';
 
 const miloLibs = getLibs();
 const { html, LitElement, css, repeat, unsafeHTML } = await import(`${miloLibs}/deps/lit-all.min.js`);

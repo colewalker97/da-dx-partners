@@ -1,7 +1,9 @@
 import { getLibs } from '../../scripts/utils.js';
 import { trainingPreviewStyles } from './TrainingPreviewStyles.js';
+
 const miloLibs = getLibs();
 const { html, LitElement } = await import(`${miloLibs}/deps/lit-all.min.js`);
+
 export default class TrainingPreview extends LitElement {
   static styles = [
     trainingPreviewStyles,
@@ -12,10 +14,6 @@ export default class TrainingPreview extends LitElement {
   // eslint-disable-next-line no-useless-constructor
   constructor() {
     super();
-  }
-
-  createRenderRoot() {
-    return this; // Use light DOM so React can access via document.getElementById
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -32,7 +30,6 @@ export default class TrainingPreview extends LitElement {
       cssLink.rel = 'stylesheet';
       cssLink.href = '/eds/blocks/training-preview/dist/css/cptraining.min.css';
       document.head.appendChild(cssLink);
-
     }
 
     // Inject the React bundle (once)
@@ -41,7 +38,7 @@ export default class TrainingPreview extends LitElement {
       script.src = '/eds/blocks/training-preview/dist/js/cptraining.min.js';
       script.type = 'text/javascript';
       script.async = true;
-      document.body.appendChild(script); // Append to body, not shadowRoot
+      document.body.appendChild(script);
     }
   }
 

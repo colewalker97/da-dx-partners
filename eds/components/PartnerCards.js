@@ -8,8 +8,9 @@ import './SinglePartnerCard.js';
 import './SinglePartnerCardHalfHeight.js';
 import { extractFilterData } from '../blocks/utils/caasUtils.js';
 
+const { default: DOMPurify } = await import('https://cdn.jsdelivr.net/npm/dompurify@3.3.0/dist/purify.es.mjs');
 const miloLibs = getLibs();
-const { html, LitElement, css, repeat } = await import(`${miloLibs}/deps/lit-all.min.js`);
+const { html, LitElement, css, repeat, unsafeHTML } = await import(`${miloLibs}/deps/lit-all.min.js`);
 
 export default class PartnerCards extends LitElement {
   static designMap = {
@@ -136,7 +137,7 @@ export default class PartnerCards extends LitElement {
           tags: filterTagsKeys.map(tagKey => ({
             key: tagKey,
             parentKey: filterKey,
-            value: getTagValue(tagKey),
+            value: unsafeHTML(DOMPurify.sanitize(getTagValue(tagKey))),
             checked: false,
           })),
         };
@@ -891,11 +892,6 @@ export default class PartnerCards extends LitElement {
     window.removeEventListener('resize', this.updateView);
   }
 
-  renderInfoBoxDescription() {
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = this.blockData.filterInfoBox.description;
-    return html`${tempDiv}`;
-  }
 
   // eslint-disable-next-line class-methods-use-this
   getSlider() {}
@@ -936,7 +932,7 @@ export default class PartnerCards extends LitElement {
                           ${this.blockData.filterInfoBox.title ? html` 
                             <div class="sidebar-info-box">
                               <div class="title">${this.blockData.filterInfoBox.title}</div>
-                              ${this.renderInfoBoxDescription()}
+                              ${unsafeHTML(DOMPurify.sanitize(this.blockData.filterInfoBox.description))}
                             </div>` : ''
                           }
                         `

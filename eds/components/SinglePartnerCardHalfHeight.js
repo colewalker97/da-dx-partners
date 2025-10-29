@@ -2,8 +2,9 @@ import { singlePartnerCardStyles } from './PartnerCardsStyles.js';
 import { formatDate, getLibs, prodHosts } from '../scripts/utils.js';
 import { transformCardUrl } from '../blocks/utils/utils.js';
 
+const { default: DOMPurify } = await import('https://cdn.jsdelivr.net/npm/dompurify@3.3.0/dist/purify.es.mjs');
 const miloLibs = getLibs();
-const { html, LitElement } = await import(`${miloLibs}/deps/lit-all.min.js`);
+const { html, LitElement, unsafeHTML } = await import(`${miloLibs}/deps/lit-all.min.js`);
 
 const DEFAULT_BACKGROUND_IMAGE_PATH = '/content/dam/solution/en/images/card-collection/sample_default.png';
 
@@ -26,7 +27,7 @@ class SinglePartnerCardHalfHeight extends LitElement {
       >
         <div class="card-title-wrapper">
           <p class="card-title">
-            ${this.data.contentArea?.title !== 'card-metadata' ? this.data.contentArea?.title : ''}
+            ${unsafeHTML(DOMPurify.sanitize(this.data.contentArea?.title !== 'card-metadata' ? this.data.contentArea?.title : ''))}
           </p>
         </div>
       </a>

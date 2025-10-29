@@ -2,7 +2,7 @@ import { singlePartnerCardStyles } from './PartnerCardsStyles.js';
 import { formatDate, getLibs, prodHosts } from '../scripts/utils.js';
 import { transformCardUrl } from '../blocks/utils/utils.js';
 
-const { default: DOMPurify } = await import('/node_modules/dompurify/dist/purify.es.mjs');
+import DOMPurify from 'dompurify';
 const miloLibs = getLibs();
 const { html, LitElement, unsafeHTML } = await import(`${miloLibs}/deps/lit-all.min.js`);
 

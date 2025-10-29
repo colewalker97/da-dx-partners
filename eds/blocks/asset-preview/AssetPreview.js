@@ -13,7 +13,7 @@ import {
 
 const DEFAULT_BACKGROUND_IMAGE_PATH = '/content/dam/solution/en/images/card-collection/sample_default.png';
 
-const { default: DOMPurify } = await import('/node_modules/dompurify/dist/purify.es.mjs');
+import DOMPurify from 'dompurify';
 
 const miloLibs = getLibs();
 const { html, LitElement, unsafeHTML } = await import(`${miloLibs}/deps/lit-all.min.js`);

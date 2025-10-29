@@ -1,3 +1,13 @@
+import { test, expect } from '@playwright/test';
+import NewsPage from './news.page.js';
+import SignInPage from '../signin/signin.page.js';
+
+let newsPage;
+let signInPage;
+import News from './news.spec.js';
+
+const { features } = News;
+
 // test.describe('Validate news block', () => {
 //   test.beforeEach(async ({ page, browserName, baseURL, context }) => {
 //     newsPage = new NewsPage(page);

@@ -16,6 +16,10 @@ export default class TrainingPreview extends LitElement {
     super();
   }
 
+  createRenderRoot() {
+    return this; // Use light DOM so React can access via document.getElementById
+  }
+
   // eslint-disable-next-line class-methods-use-this
   firstUpdated() {
     const container = document.getElementById('root_content_outer_position_component');
@@ -38,7 +42,7 @@ export default class TrainingPreview extends LitElement {
       script.src = '/eds/blocks/training-preview/dist/js/cptraining.min.js';
       script.type = 'text/javascript';
       script.async = true;
-      document.body.appendChild(script);
+      document.body.appendChild(script); // Append to body, not shadowRoot
     }
   }
 

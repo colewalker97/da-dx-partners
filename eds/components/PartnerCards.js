@@ -138,7 +138,7 @@ export default class PartnerCards extends LitElement {
           tags: filterTagsKeys.map(tagKey => ({
             key: tagKey,
             parentKey: filterKey,
-            value: unsafeHTML(DOMPurify.sanitize(getTagValue(tagKey))),
+            value: getTagValue(tagKey),
             checked: false,
           })),
         };
@@ -612,7 +612,7 @@ export default class PartnerCards extends LitElement {
         ?checked=${tag.checked}
         @change=${(event) => this.handleTag(event, tag, filter.key)}
       >
-        ${tag.value}
+        ${unsafeHTML(tag.value)}
       </sp-checkbox></li>`,
     )}`;
   }

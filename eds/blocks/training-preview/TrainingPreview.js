@@ -1,7 +1,9 @@
 import { getLibs } from '../../scripts/utils.js';
 import { trainingPreviewStyles } from './TrainingPreviewStyles.js';
+
 const miloLibs = getLibs();
 const { html, LitElement } = await import(`${miloLibs}/deps/lit-all.min.js`);
+
 export default class TrainingPreview extends LitElement {
   static styles = [
     trainingPreviewStyles,
@@ -32,7 +34,6 @@ export default class TrainingPreview extends LitElement {
       cssLink.rel = 'stylesheet';
       cssLink.href = '/eds/blocks/training-preview/dist/css/cptraining.min.css';
       document.head.appendChild(cssLink);
-
     }
 
     // Inject the React bundle (once)

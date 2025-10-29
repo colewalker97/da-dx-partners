@@ -2,7 +2,7 @@ import { singlePartnerCardStyles } from './PartnerCardsStyles.js';
 import { formatDate, getLibs, prodHosts } from '../scripts/utils.js';
 import { transformCardUrl } from '../blocks/utils/utils.js';
 
-// const { default: DOMPurify } = await import('/node_modules/dompurify/dist/purify.es.mjs');
+const { default: DOMPurify } = await import('https://cdn.jsdelivr.net/npm/dompurify@3.3.0/dist/purify.es.mjs');
 const miloLibs = getLibs();
 const { html, LitElement, unsafeHTML } = await import(`${miloLibs}/deps/lit-all.min.js`);
 
@@ -24,8 +24,8 @@ class SinglePartnerCard extends LitElement {
         </div>
         <div class="card-content">
           <div class="card-text">
-            <p class="card-title">${unsafeHTML((this.data.contentArea?.title !== 'card-metadata' ? this.data.contentArea?.title : ''))}</p>
-            <p class="card-description">${unsafeHTML((this.data.contentArea?.description))}</p>
+            <p class="card-title">${unsafeHTML(DOMPurify.sanitize(this.data.contentArea?.title !== 'card-metadata' ? this.data.contentArea?.title : ''))}</p>
+            <p class="card-description">${unsafeHTML(DOMPurify.sanitize(this.data.contentArea?.description))}</p>
           </div>
           <div class="card-footer">
             <span class="card-date">${formatDate(this.data.cardDate, this.ietf)}</span>

@@ -8,7 +8,7 @@ import './SinglePartnerCard.js';
 import './SinglePartnerCardHalfHeight.js';
 import { extractFilterData } from '../blocks/utils/caasUtils.js';
 
-// const { default: DOMPurify } = await import('/node_modules/dompurify/dist/purify.es.mjs');
+const { default: DOMPurify } = await import('https://cdn.jsdelivr.net/npm/dompurify@3.3.0/dist/purify.es.mjs');
 const miloLibs = getLibs();
 const { html, LitElement, css, repeat, unsafeHTML } = await import(`${miloLibs}/deps/lit-all.min.js`);
 
@@ -137,7 +137,7 @@ export default class PartnerCards extends LitElement {
           tags: filterTagsKeys.map(tagKey => ({
             key: tagKey,
             parentKey: filterKey,
-            value: unsafeHTML((getTagValue(tagKey))),
+            value: unsafeHTML(DOMPurify.sanitize(getTagValue(tagKey))),
             checked: false,
           })),
         };
@@ -932,7 +932,7 @@ export default class PartnerCards extends LitElement {
                           ${this.blockData.filterInfoBox.title ? html` 
                             <div class="sidebar-info-box">
                               <div class="title">${this.blockData.filterInfoBox.title}</div>
-                              ${unsafeHTML((this.blockData.filterInfoBox.description))}
+                              ${unsafeHTML(DOMPurify.sanitize(this.blockData.filterInfoBox.description))}
                             </div>` : ''
                           }
                         `

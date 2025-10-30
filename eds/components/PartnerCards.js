@@ -8,8 +8,6 @@ import './SinglePartnerCard.js';
 import './SinglePartnerCardHalfHeight.js';
 import { extractFilterData } from '../blocks/utils/caasUtils.js';
 
-import DOMPurify from '../libs/deps/purify-wrapper.js';
-
 const miloLibs = getLibs();
 const { html, LitElement, css, repeat, unsafeHTML } = await import(`${miloLibs}/deps/lit-all.min.js`);
 
@@ -932,8 +930,8 @@ export default class PartnerCards extends LitElement {
                           </div>
                           ${this.blockData.filterInfoBox.title ? html` 
                             <div class="sidebar-info-box">
-                              <div class="title">${this.blockData.filterInfoBox.title}</div>
-                              ${unsafeHTML(DOMPurify.sanitize(this.blockData.filterInfoBox.description))}
+                              <div class="title">${unsafeHTML(this.blockData.filterInfoBox.title)}</div>
+                              ${unsafeHTML(this.blockData.filterInfoBox.description)}
                             </div>` : ''
                           }
                         `

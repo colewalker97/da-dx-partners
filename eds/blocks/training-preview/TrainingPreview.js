@@ -45,11 +45,11 @@ export default class TrainingPreview extends LitElement {
       }
     }
 
+    addStyle('/eds/blocks/training-preview/dist/css/gravitycommon.min.css');
+    addStyle('/eds/blocks/training-preview/dist/css/gravitypublish.min.css');
     addStyle('/eds/blocks/training-preview/dist/css/cptraining.min.css');
     addStyle('/eds/blocks/training-preview/dist/css/dexterbasepublish.min.css');
     addStyle('/eds/blocks/training-preview/dist/css/dexterthemethree.min.css');
-    addStyle('/eds/blocks/training-preview/dist/css/gravitycommon.min.css');
-    addStyle('/eds/blocks/training-preview/dist/css/gravitypublish.min.css');
 
     // Inject the React bundle (once)
     if (!document.querySelector('script[src="/eds/blocks/training-preview/dist/js/cptraining.min.js"]')) {

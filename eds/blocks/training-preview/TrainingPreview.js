@@ -36,6 +36,13 @@ export default class TrainingPreview extends LitElement {
       document.head.appendChild(cssLink);
     }
 
+    if (!document.querySelector('link[href="/eds/blocks/training-preview/dist/css/publish.min.css"]')) {
+      const cssLinkPublishClientLib = document.createElement('link');
+      cssLinkPublishClientLib.rel = 'stylesheet';
+      cssLinkPublishClientLib.href = '/eds/blocks/training-preview/dist/css/publish.min.css';
+      document.head.appendChild(cssLinkPublishClientLib);
+    }
+
     // Inject the React bundle (once)
     if (!document.querySelector('script[src="/eds/blocks/training-preview/dist/js/cptraining.min.js"]')) {
       const script = document.createElement('script');

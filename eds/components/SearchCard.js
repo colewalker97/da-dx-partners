@@ -2,7 +2,7 @@ import searchCardStyles from './SearchCardStyles.js';
 import { formatDate, getLibs } from '../scripts/utils.js';
 import { getConfig, replaceText } from '../blocks/utils/utils.js';
 
-const { default: DOMPurify } = await import('https://cdn.jsdelivr.net/npm/dompurify@3.3.0/dist/purify.es.mjs');
+import DOMPurify from '../libs/deps/purify-wrapper.js';
 const miloLibs = getLibs();
 const config = getConfig();
 const { html, repeat, LitElement, until, unsafeHTML } = await import(`${miloLibs}/deps/lit-all.min.js`);

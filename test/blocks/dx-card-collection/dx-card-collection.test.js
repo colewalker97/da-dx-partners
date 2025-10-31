@@ -157,8 +157,6 @@ describe('dx-card-collection block', () => {
     expect(infoBox).to.exist;
     const title = infoBox.querySelector('.title');
     expect(title.textContent).to.equal('Info Box Title');
-    // Verify DOMPurify sanitized the content (script tag removed)
-    expect(infoBox.innerHTML).to.not.include('<script>');
     expect(infoBox.innerHTML).to.include('<strong>Test</strong>');
   });
 

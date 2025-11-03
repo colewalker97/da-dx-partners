@@ -73,7 +73,7 @@ export async function localizationPromises(localizedText, config) {
 
 export function getRuntimeActionUrl(action) {
   const { env } = getConfig();
-  let domain = 'https://io-partners-dx.stage.adobe.com';
+  let domain = 'https://14257-dxpartners-dekidev.adobeioruntime.net';
   if (env.name === 'prod') {
     domain = 'https://io-partners-dx.adobe.com';
   }

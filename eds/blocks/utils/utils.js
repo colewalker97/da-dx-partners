@@ -103,7 +103,6 @@ export function generateRequestForSearchAPI(pageOptions, body) {
     body: JSON.stringify(body),
     credentials: 'include',
   });
-
 }
 
 const PARTNERS_PREVIEW_DOMAIN = 'partnerspreview.adobe.com';

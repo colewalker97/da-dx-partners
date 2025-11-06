@@ -12,7 +12,6 @@ export const searchCardsStyles = css`
   }
   
   .search-box-wrapper {
-    background: transparent linear-gradient(96deg, #3D8BFF 0%, #9272FB 100%) 0% 0% no-repeat padding-box;
     margin-bottom: 30px;
     padding: 30px 0;
   }

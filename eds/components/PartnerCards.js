@@ -9,7 +9,7 @@ import './SinglePartnerCardHalfHeight.js';
 import { extractFilterData } from '../blocks/utils/caasUtils.js';
 
 const miloLibs = getLibs();
-const { html, LitElement, css, repeat } = await import(`${miloLibs}/deps/lit-all.min.js`);
+const { html, LitElement, css, repeat, unsafeHTML } = await import(`${miloLibs}/deps/lit-all.min.js`);
 
 export default class PartnerCards extends LitElement {
   static designMap = {
@@ -610,7 +610,7 @@ export default class PartnerCards extends LitElement {
         ?checked=${tag.checked}
         @change=${(event) => this.handleTag(event, tag, filter.key)}
       >
-        ${tag.value}
+        ${unsafeHTML(tag.value)}
       </sp-checkbox></li>`,
     )}`;
   }
@@ -891,11 +891,6 @@ export default class PartnerCards extends LitElement {
     window.removeEventListener('resize', this.updateView);
   }
 
-  renderInfoBoxDescription() {
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = this.blockData.filterInfoBox.description;
-    return html`${tempDiv}`;
-  }
 
   // eslint-disable-next-line class-methods-use-this
   getSlider() {}
@@ -935,8 +930,8 @@ export default class PartnerCards extends LitElement {
                           </div>
                           ${this.blockData.filterInfoBox.title ? html` 
                             <div class="sidebar-info-box">
-                              <div class="title">${this.blockData.filterInfoBox.title}</div>
-                              ${this.renderInfoBoxDescription()}
+                              <div class="title">${unsafeHTML(this.blockData.filterInfoBox.title)}</div>
+                              ${unsafeHTML(this.blockData.filterInfoBox.description)}
                             </div>` : ''
                           }
                         `

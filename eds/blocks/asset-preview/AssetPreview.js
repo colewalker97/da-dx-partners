@@ -8,13 +8,15 @@ import {
 import {
   DIGITALEXPERIENCE_ASSETS_PATH,
   DIGITALEXPERIENCE_PREVIEW_PATH,
-  PARTNER_LEVEL, PX_ASSETS_AEM_PATH,
+  PARTNER_LEVEL, PX_ASSETS_PREVIEW_PATH,
 } from '../utils/dxConstants.js';
 
 const DEFAULT_BACKGROUND_IMAGE_PATH = '/content/dam/solution/en/images/card-collection/sample_default.png';
 
+import DOMPurify from '../../libs/deps/purify-wrapper.js';
+
 const miloLibs = getLibs();
-const { html, LitElement } = await import(`${miloLibs}/deps/lit-all.min.js`);
+const { html, LitElement, unsafeHTML } = await import(`${miloLibs}/deps/lit-all.min.js`);
 const DEFAULT_BACK_BTN_LABEL = 'Back to previous';
 export default class AssetPreview extends LitElement {
   static styles = [
@@ -145,21 +147,21 @@ export default class AssetPreview extends LitElement {
   }
 
   async setData(assetMetadata) {
-    this.title = assetMetadata.title;
-    document.title = assetMetadata.title;
-    this.summary = assetMetadata.summary;
-    this.description = assetMetadata.description;
-    this.fileType = assetMetadata.fileType;
-    this.url = assetMetadata.url;
-    this.previewImage = assetMetadata.previewImage || assetMetadata.thumbnailUrl;
-    this.backButtonUrl = this.blockData.backButtonUrl;
-    this.backButtonLabel = this.blockData.backButtonLabel || DEFAULT_BACK_BTN_LABEL;
+    this.title = DOMPurify.sanitize(assetMetadata.title);
+    document.title = DOMPurify.sanitize(assetMetadata.title);
+    this.summary = DOMPurify.sanitize(assetMetadata.summary);
+    this.description = DOMPurify.sanitize(assetMetadata.description);
+    this.fileType = DOMPurify.sanitize(assetMetadata.fileType);
+    this.url = DOMPurify.sanitize(assetMetadata.url);
+    this.previewImage = DOMPurify.sanitize(assetMetadata.previewImage || assetMetadata.thumbnailUrl);
+    this.backButtonUrl = DOMPurify.sanitize(this.blockData.backButtonUrl);
+    this.backButtonLabel = DOMPurify.sanitize(this.blockData.backButtonLabel || DEFAULT_BACK_BTN_LABEL);
     this.tags = assetMetadata.tags
       ? this.getTagsDisplayValues(this.allCaaSTags, assetMetadata.tags) : [];
     this.allAssetTags = assetMetadata.tags;
-    this.ctaText = assetMetadata.ctaText;
-    this.size = this.getSizeInMb(assetMetadata.size);
-    this.assetPartnerLevel = assetMetadata.partnerLevel?.map((level) => level.toLowerCase());
+    this.ctaText = DOMPurify.sanitize(assetMetadata.ctaText);
+    this.size = DOMPurify.sanitize(this.getSizeInMb(assetMetadata.size));
+    this.assetPartnerLevel = assetMetadata.partnerLevel?.map((level) => DOMPurify.sanitize(level.toLowerCase()));
     this.createdDate = (() => {
       if (!assetMetadata.createdDate) return '';
 
@@ -178,12 +180,12 @@ export default class AssetPreview extends LitElement {
     } else {
       this.assetHasData = true;
     }
-    this.aemPath = assetMetadata.aemPath;
+    this.aemPath = DOMPurify.sanitize(assetMetadata.aemPath);
   }
 
   // eslint-disable-next-line class-methods-use-this
   getRealAssetUrl() {
-    const assetMetadataPath = window.location.href.replace(DIGITALEXPERIENCE_PREVIEW_PATH, PX_ASSETS_AEM_PATH).replace('.html','.assetmetadata.json');
+    const assetMetadataPath = window.location.href.replace(DIGITALEXPERIENCE_PREVIEW_PATH, PX_ASSETS_PREVIEW_PATH).replace('.html','/_jcr_content/metadata.assetmetadata.json');
     try {
       const url = new URL(assetMetadataPath);
       const isProd = prodHosts.includes(window.location.host);
@@ -198,15 +200,15 @@ export default class AssetPreview extends LitElement {
   render() {
     return html`<div class="asset-preview-block-container">
       ${this.assetHasData && !this.isLoading ? html`
-          <div class="asset-preview-block-header"><p>${this.blockData.localizedText['{{Asset detail}}']}: ${this.title}  ${this.getFileTypeFromTag() ? `(${this.getFileTypeFromTag()})` : ''}</p></div>
+          <div class="asset-preview-block-header"><p>${this.blockData.localizedText['{{Asset detail}}']}: ${unsafeHTML(this.title)}  ${this.getFileTypeFromTag() ? `(${this.getFileTypeFromTag()})` : ''}</p></div>
           <div class="asset-preview-block-details ">
             <div class="asset-preview-block-details-left">
               ${this.createdDate ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Date}}']}: </span>${this.createdDate}</p>` : ''}
-              ${this.getTagsTitlesString(this.audienceTags) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Audience}}']}: </span>${this.getTagsTitlesString(this.audienceTags)}</p>` : ''}
-              ${(this.isVideo ? this.description : this.summary || this.description) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Summary}}']}: </span>${this.isVideo ? this.description : this.summary || this.description}</p>` : ''}
-              ${this.getTagsTitlesString(this.fileFormatTags) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Type}}']}: </span>${this.getTagsTitlesString(this.fileFormatTags)}</p>` : ''}
-              ${this.getTagsTitlesString(this.tags) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Tags}}']}: </span>${this.getTagsTitlesString(this.tags)}</p>` : ''}
-              ${this.size ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Size}}']}: </span class="bold">${this.size}</p>` : ''}
+              ${this.getTagsTitlesString(this.audienceTags) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Audience}}']}: </span>${unsafeHTML(this.getTagsTitlesString(this.audienceTags))}</p>` : ''}
+              ${(this.isVideo ? this.description : this.summary || this.description) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Summary}}']}: </span>${this.isVideo ? unsafeHTML(this.description) : unsafeHTML(this.summary) || unsafeHTML(this.description)}</p>` : ''}
+              ${this.getTagsTitlesString(this.fileFormatTags) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Type}}']}: </span>${unsafeHTML(this.getTagsTitlesString(this.fileFormatTags))}</p>` : ''}
+              ${this.getTagsTitlesString(this.tags) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Tags}}']}: </span>${unsafeHTML(this.getTagsTitlesString(this.tags))}</p>` : ''}
+              ${this.size ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Size}}']}: </span class="bold">${unsafeHTML(this.size)}</p>` : ''}
             </div>
             <div class="asset-preview-block-details-right"
                  style="background-image:
@@ -270,8 +272,8 @@ export default class AssetPreview extends LitElement {
 
   // eslint-disable-next-line class-methods-use-this
   getSizeInMb(size) {
-    const sizeInMb = Number(size / (1024 * 1024)).toFixed(2);
-    const sizeInKb = Number(size / 1024).toFixed(2);
+    const sizeInMb = Number(size / (1000 * 1000)).toFixed(1);
+    const sizeInKb = Number(size / 1000).toFixed(1);
     return sizeInMb >= 1 ? `${sizeInMb} MB` : `${sizeInKb} KB`;
   }
 
@@ -308,7 +310,7 @@ export default class AssetPreview extends LitElement {
     filteredTags.forEach((tag) => {
       const tagObject = this.findTagByPath(this.allCaaSTags.namespaces.caas.tags, tag)
         || { tagId: tag, title: tag };
-      tagsArray.push({ tagId: tag, title: tagObject.title });
+      tagsArray.push({ tagId: DOMPurify.sanitize(tag), title: DOMPurify.sanitize(tagObject.title) });
     });
     return tagsArray;
   }
@@ -323,7 +325,7 @@ export default class AssetPreview extends LitElement {
 
   // eslint-disable-next-line class-methods-use-this
   getTagsTitlesString(tags) {
-    return tags?.map((tag) => tag.title).join(', ');
+    return tags?.map((tag) => DOMPurify.sanitize(tag.title)).join(', ');
   }
 
   getDownloadUrl() {

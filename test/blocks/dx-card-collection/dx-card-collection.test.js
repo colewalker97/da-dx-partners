@@ -107,4 +107,57 @@ describe('dx-card-collection block', () => {
     expect(firstCard.shadowRoot).to.exist;
   });
 
+  it('should render filter info box when configured for desktop', async function () {
+    PartnerCards.prototype.firstUpdated.restore();
+    PartnerCards.prototype.fetchTags.restore();
+
+    sinon.stub(PartnerCards.prototype, 'fetchTags').callsFake(async function () {
+      this.allTags = tags;
+    });
+
+    sinon.stub(PartnerCards.prototype, 'setBlockData').callsFake(function () {
+      this.blockData = {
+        ...this.blockData,
+        title: '',
+        filters: [],
+        filtersInfos: [],
+        sort: {
+          default: { key: 'newest', value: 'Newest' },
+          items: [
+            { key: 'newest', value: 'Newest' },
+            { key: 'oldest', value: 'Oldest' },
+          ],
+        },
+        pagination: 'disable',
+        filterInfoBox: {
+          title: 'Info Box Title',
+          description: '<strong>Test</strong> description with <script>alert("xss")</script> HTML',
+        },
+        localizedText: {
+          '{{filter}}': 'Filter',
+          '{{clear-all}}': 'Clear All',
+          '{{search}}': 'Search',
+        },
+      };
+    });
+
+    sinon.stub(PartnerCards.prototype, 'firstUpdated').callsFake(async function () {
+      this.allCards = cards;
+      this.cards = cards;
+      this.paginatedCards = this.cards.slice(0, 3);
+      this.hasResponseData = true;
+      this.fetchedData = true;
+      this.allTags = tags;
+      this.selectedSortOrder = { key: 'newest', value: 'Newest' };
+    });
+
+    const { partnerNewsWrapper } = await setupAndCommonTest(1500);
+
+    const infoBox = partnerNewsWrapper.shadowRoot.querySelector('.sidebar-info-box');
+    expect(infoBox).to.exist;
+    const title = infoBox.querySelector('.title');
+    expect(title.textContent).to.equal('Info Box Title');
+    expect(infoBox.innerHTML).to.include('<strong>Test</strong>');
+  });
+
 });

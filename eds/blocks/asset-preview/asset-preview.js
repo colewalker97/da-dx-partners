@@ -32,6 +32,8 @@ export default async function init(el) {
     '{{Size}}': 'Size',
     '{{View}}': 'View',
     '{{Download}}': 'Download',
+    '{{Download Video}}': 'Download Video',
+    '{{Download PDF}}': 'Download PDF',
     '{{Back to previous}}': 'Back to previous',
     '{{Asset data not found}}': 'Asset data not found',
     '{{Loading data}}': 'Loading data',

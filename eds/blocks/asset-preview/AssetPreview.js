@@ -52,6 +52,7 @@ export default class AssetPreview extends LitElement {
     this.allCaaSTags = [];
     this.isVideoPlaying = false;
     this.isVideo = false;
+    this.isWebinar = false;
     this.isLoading = true;
     this.isVideoLoading = false;
     this.assetPartnerLevel = [];
@@ -153,6 +154,7 @@ export default class AssetPreview extends LitElement {
     this.description = DOMPurify.sanitize(assetMetadata.description);
     this.fileType = DOMPurify.sanitize(assetMetadata.fileType);
     this.url = DOMPurify.sanitize(assetMetadata.url);
+    this.webinarPresentation = DOMPurify.sanitize(assetMetadata.webinarPresentation);
     this.previewImage = DOMPurify.sanitize(assetMetadata.previewImage || assetMetadata.thumbnailUrl);
     this.backButtonUrl = DOMPurify.sanitize(this.blockData.backButtonUrl);
     this.backButtonLabel = DOMPurify.sanitize(this.blockData.backButtonLabel || DEFAULT_BACK_BTN_LABEL);
@@ -175,6 +177,7 @@ export default class AssetPreview extends LitElement {
     this.audienceTags = assetMetadata.tags ? this.getTagChildTagsObjects(assetMetadata.tags, this.allCaaSTags, 'caas:audience') : [];
     this.fileFormatTags = assetMetadata.tags ? this.getTagChildTagsObjects(assetMetadata.tags, this.allCaaSTags, 'caas:file-format') : [];
     this.isVideo = this.fileFormatTags && this.fileFormatTags.length && this.fileFormatTags[0].tagId === 'caas:file-format/video';
+    this.isWebinar = this.allAssetTags.indexOf('caas:content-type/webinar') >= 0;
     if (!assetMetadata.title || !assetMetadata.url) {
       this.assetHasData = false;
     } else {
@@ -223,7 +226,11 @@ export default class AssetPreview extends LitElement {
               <div class="asset-preview-block-actions">
               ${this.isPreviewEnabled(this.getFileTypeFromTag()) ? html`<button 
                 class="outline" ><a target="_blank" rel="noopener noreferrer" href="${this.getDownloadUrl()}"> View </a></button>` : ''}
-                <button class="filled"><a  download="${this.title}" href="${this.getDownloadUrl()}">${this.blockData.localizedText['{{Download}}']}</a></button>
+                <button class="filled"><a  download="${this.title}" href="${this.getDownloadUrl()}">${this.isVideo && this.isWebinar ? this.blockData.localizedText['{{Download Video}}'] : this.blockData.localizedText['{{Download}}']}</a></button>
+                ${this.isWebinar && this.isVideo ? html`
+                  <button class="filled"><a  download="${`${this.title}_presentation`}" href="${this.getWebinarPresentationDownloadUrl()}">${this.blockData.localizedText['{{Download PDF}}']}</a></button>
+                ` : ''}
+                
               ${this.backButtonUrl ? html`<a 
                 class="link" href="${this.backButtonUrl}">${this.blockData.localizedText[`{{${this.backButtonLabel}}}`]}</a>` : ''}
               </div>` : ''}
@@ -331,6 +338,11 @@ export default class AssetPreview extends LitElement {
   getDownloadUrl() {
     if (!this.url) return '#';
     return this.url;
+  }
+
+  getWebinarPresentationDownloadUrl() {
+    if (!this.webinarPresentation) return '#';
+    return this.webinarPresentation;
   }
 
   isRestrictedAssetForUser() {

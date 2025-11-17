@@ -13,12 +13,6 @@ const SPINNER_ANIMATION = `<sp-theme system="light" color="light" scale="medium"
         <sp-progress-circle label="progress circle" indeterminate="" size="l" dir="ltr" role="progressbar" aria-label="progress circle"></sp-progress-circle>
     </sp-theme>`;
 
-const ALERT_ICON = `<svg xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 0 18 18" width="18">
-        <defs><style>.fill { fill: #c9252d; }</style></defs>
-        <title>S Alert 18 N</title>
-        <rect id="Canvas" fill="#ff13dc" opacity="0" width="18" height="18" /><path class="fill" d="M8.5635,1.2895.2,16.256A.5.5,0,0,0,.636,17H17.364a.5.5,0,0,0,.436-.744L9.4365,1.2895a.5.5,0,0,0-.873,0ZM10,14.75a.25.25,0,0,1-.25.25H8.25A.25.25,0,0,1,8,14.75v-1.5A.25.25,0,0,1,8.25,13h1.5a.25.25,0,0,1,.25.25Zm0-3a.25.25,0,0,1-.25.25H8.25A.25.25,0,0,1,8,11.75v-6a.25.25,0,0,1,.25-.25h1.5a.25.25,0,0,1,.25.25Z" />
-    </svg>`;
-
 let agreementModal;
 
 async function acceptAgreement(agreementTextContainer, successMessage, errorMessage, spinner, closeModalCallback) {
@@ -43,7 +37,7 @@ async function createContent(miloLibs, agreementMeta, agreementContent) {
     await loadStyle(`${codeRoot}/styles/partner-agreement.css`);
 
     const agreementTitleText = createTag('div', null, agreementMeta.agreementTitle);
-    const agreementTitleIcon = createTag('div', null, ALERT_ICON);
+    const agreementTitleIcon = createTag('div', {class: 'agreement-alert'});
     const agreementHeader = createTag('h3', {class: 'agreement-header'}, [agreementTitleText, agreementTitleIcon]);
 
     const agreementHr = createTag('hr', {class: 'agreement-hr'})

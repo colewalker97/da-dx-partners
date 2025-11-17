@@ -37,6 +37,12 @@ export default async function init(el) {
     '{{Back to previous}}': 'Back to previous',
     '{{Asset data not found}}': 'Asset data not found',
     '{{Loading data}}': 'Loading data',
+    '{{Download PowerPoint}}': 'Download PPT',
+    '{{Download ZIP}}': 'Download ZIP',
+    '{{Download Image}}': 'Download Image',
+    '{{Download Document}}': 'Download Word',
+    '{{Download Excel Spreadsheet}}': 'Download Excel',
+    '{{Download File}}': 'Download File',
   };
   populateLocalizedTextFromListItems(el, localizedText);
 

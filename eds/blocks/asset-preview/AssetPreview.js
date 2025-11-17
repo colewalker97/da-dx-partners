@@ -6,8 +6,7 @@ import {
   transformCardUrl,
 } from '../utils/utils.js';
 import {
-  DIGITALEXPERIENCE_ASSETS_PATH,
-  DIGITALEXPERIENCE_PREVIEW_PATH,
+  DIGITALEXPERIENCE_PREVIEW_PATH, FILE_EXTENSION_TO_DOWNLOAD_LABEL,
   PARTNER_LEVEL, PX_ASSETS_PREVIEW_PATH,
 } from '../utils/dxConstants.js';
 
@@ -52,7 +51,6 @@ export default class AssetPreview extends LitElement {
     this.allCaaSTags = [];
     this.isVideoPlaying = false;
     this.isVideo = false;
-    this.isWebinar = false;
     this.isLoading = true;
     this.isVideoLoading = false;
     this.assetPartnerLevel = [];
@@ -177,7 +175,6 @@ export default class AssetPreview extends LitElement {
     this.audienceTags = assetMetadata.tags ? this.getTagChildTagsObjects(assetMetadata.tags, this.allCaaSTags, 'caas:audience') : [];
     this.fileFormatTags = assetMetadata.tags ? this.getTagChildTagsObjects(assetMetadata.tags, this.allCaaSTags, 'caas:file-format') : [];
     this.isVideo = this.fileFormatTags && this.fileFormatTags.length && this.fileFormatTags[0].tagId === 'caas:file-format/video';
-    this.isWebinar = this.allAssetTags.indexOf('caas:content-type/webinar') >= 0;
     if (!assetMetadata.title || !assetMetadata.url) {
       this.assetHasData = false;
     } else {
@@ -226,9 +223,9 @@ export default class AssetPreview extends LitElement {
               <div class="asset-preview-block-actions">
               ${this.isPreviewEnabled(this.getFileTypeFromTag()) ? html`<button 
                 class="outline" ><a target="_blank" rel="noopener noreferrer" href="${this.getDownloadUrl()}"> View </a></button>` : ''}
-                <button class="filled"><a  download="${this.title}" href="${this.getDownloadUrl()}">${this.isVideo && this.isWebinar ? this.blockData.localizedText['{{Download Video}}'] : this.blockData.localizedText['{{Download}}']}</a></button>
-                ${this.isWebinar && this.isVideo ? html`
-                  <button class="filled"><a  download="${`${this.title}_presentation`}" href="${this.getWebinarPresentationDownloadUrl()}">${this.blockData.localizedText['{{Download PDF}}']}</a></button>
+                <button class="filled"><a  download="${this.title}" href="${this.getDownloadUrl()}">${this.blockData.localizedText[`{{${this.getLabelBasedOnFileExtension(this.url)}}}`]}</a></button>
+                ${this.webinarPresentation ? html`
+                  <button class="filled"><a  download="${`${this.title}_presentation`}" href="${this.getWebinarPresentationDownloadUrl()}">${this.blockData.localizedText[`{{${this.getLabelBasedOnFileExtension(this.webinarPresentation)}}}`]}</a></button>
                 ` : ''}
                 
               ${this.backButtonUrl ? html`<a 
@@ -349,5 +346,15 @@ export default class AssetPreview extends LitElement {
     return !(!this.assetPartnerLevel.length
       || this.assetPartnerLevel.includes('public')
       || this.assetPartnerLevel.includes(PARTNER_LEVEL));
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getLabelBasedOnFileExtension(url) {
+    const { pathname } = new URL(url);
+    const fileName = pathname.split('/').pop();
+    const parts = fileName.split('.');
+    const extension = parts.length > 1 ? parts.pop() : '';
+
+    return FILE_EXTENSION_TO_DOWNLOAD_LABEL[extension] || 'Download';
   }
 }

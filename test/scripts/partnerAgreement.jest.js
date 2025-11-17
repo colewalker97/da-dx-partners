@@ -263,17 +263,11 @@ describe('Test partnerAgreement.js', () => {
         </html>
       `;
 
-      global.fetch.mockImplementation((url, options) => {
-        if (url === '/digitalexperience/fragments/partner-agreement-meta') {
-          return Promise.resolve({ ok: true, text: () => Promise.resolve(metaHtml) });
-        }
-        if (typeof url === 'string' && url.startsWith('https://runtime.com')) {
-          return Promise.resolve({ ok: true, json: () => Promise.resolve({ terms: ['<p>Partner Agreement Text</p>'] }) });
-        }
-        if (url === '/eds/img/icons/alert.svg') {
-          return Promise.resolve({ ok: true, text: () => Promise.resolve('<svg id="alert"></svg>') });
-        }
-        return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+      let call = 0;
+      global.fetch.mockImplementation((url) => {
+        call += 1;
+        if (call === 1) return Promise.resolve({ ok: true, text: () => Promise.resolve(metaHtml) });
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ terms: ['<p>Partner Agreement Text</p>'] }) });
       });
 
       const { partnerAgreement } = require('../../eds/scripts/partnerAgreement.js');
@@ -316,27 +310,12 @@ describe('Test partnerAgreement.js', () => {
       getCurrentProgramType.mockReturnValue('dxp');
       getCookieValue.mockReturnValue(JSON.stringify({ DXP: { status: 'MEMBER' } }));
 
-      global.fetch.mockImplementation((url, options) => {
-        if (url === '/digitalexperience/fragments/partner-agreement-meta') {
-          return Promise.resolve({ ok: true, text: () => Promise.resolve(metaHtml) });
-        }
-        if (url === '/eds/img/icons/alert.svg') {
-          return Promise.resolve({ ok: true, text: () => Promise.resolve('<svg id="alert"></svg>') });
-        }
-        if (typeof url === 'string' && url.startsWith('https://runtime.com')) {
-          try {
-            const body = JSON.parse(options?.body || '{}');
-            if (body.action === 'fetch') {
-              return Promise.resolve({ ok: true, json: () => Promise.resolve({ terms: ['<p>Terms</p>'] }) });
-            }
-            if (body.action === 'accept') {
-              return Promise.resolve({ ok: true, json: () => Promise.resolve({ success: true }) });
-            }
-          } catch (e) {
-            return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
-          }
-        }
-        return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+      let call = 0;
+      global.fetch.mockImplementation(() => {
+        call += 1;
+        if (call === 1) return Promise.resolve({ ok: true, text: () => Promise.resolve(metaHtml) });
+        if (call === 2) return Promise.resolve({ ok: true, json: () => Promise.resolve({ terms: ['<p>Terms</p>'] }) });
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ success: true }) });
       });
 
       const { partnerAgreement } = require('../../eds/scripts/partnerAgreement.js');
@@ -370,27 +349,12 @@ describe('Test partnerAgreement.js', () => {
       getMetadataContent.mockReturnValue('/path/meta.html');
       getCookieValue.mockReturnValue(JSON.stringify({ DXP: { status: 'MEMBER' } }));
 
-      global.fetch.mockImplementation((url, options) => {
-        if (url === '/path/meta.html') {
-          return Promise.resolve({ ok: true, text: () => Promise.resolve(metaHtml) });
-        }
-        if (url === '/eds/img/icons/alert.svg') {
-          return Promise.resolve({ ok: true, text: () => Promise.resolve('<svg id="alert"></svg>') });
-        }
-        if (typeof url === 'string' && url.startsWith('https://runtime.com')) {
-          try {
-            const body = JSON.parse(options?.body || '{}');
-            if (body.action === 'fetch') {
-              return Promise.resolve({ ok: true, json: () => Promise.resolve({ terms: ['<p>Terms</p>'] }) });
-            }
-            if (body.action === 'accept') {
-              return Promise.resolve({ ok: true, json: () => Promise.resolve({ errorCode: 'ACCEPT_ERROR' }) });
-            }
-          } catch (e) {
-            return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
-          }
-        }
-        return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+      let call = 0;
+      global.fetch.mockImplementation(() => {
+        call += 1;
+        if (call === 1) return Promise.resolve({ ok: true, text: () => Promise.resolve(metaHtml) });
+        if (call === 2) return Promise.resolve({ ok: true, json: () => Promise.resolve({ terms: ['<p>Terms</p>'] }) });
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ errorCode: 'ACCEPT_ERROR' }) });
       });
 
       const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -413,17 +377,9 @@ describe('Test partnerAgreement.js', () => {
       getMetadataContent.mockReturnValue('/digitalexperience/fragments/partner-agreement-meta');
 
       const metaHtml = `<html><head><meta name="agreementtitle" content="T" /></head></html>`;
-      global.fetch.mockImplementation((url, options) => {
-        if (url === '/digitalexperience/fragments/partner-agreement-meta') {
-          return Promise.resolve({ ok: true, text: () => Promise.resolve(metaHtml) });
-        }
-        if (url === '/eds/img/icons/alert.svg') {
-          return Promise.resolve({ ok: true, text: () => Promise.resolve('<svg id=\"alert\"></svg>') });
-        }
-        if (typeof url === 'string' && url.startsWith('https://runtime.com')) {
-          return Promise.resolve({ ok: true, json: () => Promise.resolve({ terms: ['<p>Terms</p>'] }) });
-        }
-        return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+      global.fetch.mockImplementation((url) => {
+        if (url === '/digitalexperience/fragments/partner-agreement-meta') return Promise.resolve({ ok: true, text: () => Promise.resolve(metaHtml) });
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ terms: ['<p>Terms</p>'] }) });
       });
 
       const { partnerAgreement } = require('../../eds/scripts/partnerAgreement.js');

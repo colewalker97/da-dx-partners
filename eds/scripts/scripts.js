@@ -20,6 +20,7 @@ import {
 } from './utils.js';
 import { applyPagePersonalization } from './personalization.js';
 import { rewriteLinks } from './rewriteLinks.js';
+import {partnerAgreement} from "./partnerAgreement.js";
 // import PartnerNews  from '../blocks/partner-news/PartnerNews.js';
 
 // Add project-wide style path here.
@@ -105,6 +106,7 @@ async function loadPage() {
   await loadArea();
   applyPagePersonalization();
   rewriteLinks(document);
+  await partnerAgreement(miloLibs);
 }
 loadPage();
 

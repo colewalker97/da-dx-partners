@@ -7,11 +7,11 @@ import {
     isMember
 } from "./utils.js";
 
-const RT_PARTNER_AGREEMENT_PATH = '/api/v1/web/dx-partners-runtime/partner-agreement'
+const RT_PARTNER_AGREEMENT_PATH = '/api/v1/web/dx-partners-runtime/partner-agreement';
 
 const SPINNER_ANIMATION = `<sp-theme system="light" color="light" scale="medium" dir="ltr" class="agreement-progress-wrapper">
         <sp-progress-circle label="progress circle" indeterminate="" size="l" dir="ltr" role="progressbar" aria-label="progress circle"></sp-progress-circle>
-    </sp-theme>`
+    </sp-theme>`;
 
 const ALERT_ICON = `<svg xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 0 18 18" width="18">
         <defs><style>.fill { fill: #c9252d; }</style></defs>
@@ -94,14 +94,15 @@ async function handleAgreement(action) {
         );
         if (!response.ok) {
             console.error(`${action} Partner Agreement failed, status: ${response.status}`);
+            return false;
         }
         const responseJson = await response.json();
         if (action === 'fetch') {
             if (!responseJson || !responseJson.terms || responseJson.terms.length < 1) {
                 console.error('Partner Agreement response is empty');
-                return null;
+                return false;
             }
-            return responseJson.terms[0];
+            return responseJson.terms?.[0];
         } else {
             if (responseJson.errorCode) {
                 console.error(`Accepting partner agreement failed! Error code: ${responseJson.errorCode}`);
@@ -128,9 +129,6 @@ function preventModalClose(modal) {
         }
     }
     modal.addEventListener('keydown', blockEscapeKey, {capture: true});
-    // maybe add all these if milo team changes the event
-    // modal.addEventListener('keyup', blockEscapeKey, {capture: true});
-    // modal.addEventListener('keypress', blockEscapeKey, {capture: true});
 
     // prevent closing the modal by clicking outside
     const curtain = document.querySelector('.modal-curtain, .is-open');
@@ -141,18 +139,13 @@ function preventModalClose(modal) {
         }
     };
     curtain.addEventListener('click', blockClickOutside, {capture: true});
-    // maybe add all these if milo team changes the event
-    // curtain.addEventListener('mousedown', blockClickOutside, {capture: true});
-    // curtain.addEventListener('mouseup', blockClickOutside, {capture: true});
-    // curtain.addEventListener('pointerdown', blockClickOutside, {capture: true});
-    // curtain.addEventListener('pointerup', blockClickOutside, {capture: true});
 }
 
 async function loadAgreementMeta(metadataUrl) {
     const response = await fetch(metadataUrl);
     if (!response.ok) {
         console.error(`Fetching partner agreement metadata failed, status ${response.status}`);
-        return null;
+        return false;
     }
     const text = await response.text();
     const {head} = new DOMParser().parseFromString(text, 'text/html');
@@ -167,19 +160,19 @@ async function loadAgreementMeta(metadataUrl) {
 
 export async function partnerAgreement(miloLibs) {
     const latestAgreementAccepted = getPartnerDataCookieValue('latestagreementaccepted');
-    if (isMember() && latestAgreementAccepted) return;
+    if (isMember() && latestAgreementAccepted) return false;
 
     const partnerAgreementMetaPath = getMetadataContent('partner-agreement-meta');
     if (!partnerAgreementMetaPath) {
         console.warn('Partner agreement should be displayed but partner agreement meta path is not authored');
-        return;
+        return false;
     }
 
     const agreementMeta = await loadAgreementMeta(partnerAgreementMetaPath);
-    if (!agreementMeta) return;
+    if (!agreementMeta) return false;
 
     const agreementContent = await handleAgreement('fetch');
-    if (!agreementContent) return;
+    if (!agreementContent) return false;
 
     const content = await createContent(miloLibs, agreementMeta, agreementContent);
 
@@ -188,6 +181,6 @@ export async function partnerAgreement(miloLibs) {
         null,
         {class: 'commerce-frame', id: 'partner-agreement-modal', content, closeEvent: 'close-partner-agreement-modal'},
     );
-
-    preventModalClose(agreementModal)
+    preventModalClose(agreementModal);
+    return true;
 }

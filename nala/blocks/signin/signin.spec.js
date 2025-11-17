@@ -93,7 +93,7 @@ export default {
       path: ' https://partners.stage.adobe.com/digitalexperience/',
       tags: '@da-dx-signin @regression @circleCi',
       data: {
-        partnerLevel: 'app-abandoned:',
+        partnerLevel: 'dxp-abandoned:',
         expectedToSeeInURL: '/digitalexperience/error/account-inactive',
       },
     },
@@ -103,7 +103,7 @@ export default {
       path: ' https://partners.stage.adobe.com/digitalexperience/',
       tags: '@da-dx-signin @regression @circleCi',
       data: {
-        partnerLevel: 'app-terminated:',
+        partnerLevel: 'dxp-terminated:',
         expectedToSeeInURL: '/digitalexperience/error/ineligible',
       },
     },
@@ -113,7 +113,7 @@ export default {
       path: ' https://partners.stage.adobe.com/digitalexperience/',
       tags: '@da-dx-signin @regression @circleCi',
       data: {
-        partnerLevel: 'app-rejected:',
+        partnerLevel: 'dxp-rejected:',
         expectedToSeeInURL: '/digitalexperience/error/decline',
       },
     },

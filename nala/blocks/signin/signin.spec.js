@@ -177,5 +177,16 @@ export default {
         expectedToSeeInURL: '/digitalexperience/drafts/automation/regression/silver/silver-page',
       },
     },
+    {
+      tcid: '18',
+      name: '@double-access-protected-page-with-non-member-user',
+      path: 'https://partners.stage.adobe.com/digitalexperience/drafts/automation/regression/public-page',
+      tags: '@da-dx-signin @regression @circleCi',
+      data: {
+        partnerLevel: 'cpp-distributor-india:',
+        expectedToContactNotFoundInURL: '/digitalexperience/error/contact-not-found#',
+        secondaccess404Url: '/digitalexperience/drafts/automation/regression/silver/silver-page',
+      },
+    },
   ],
 };

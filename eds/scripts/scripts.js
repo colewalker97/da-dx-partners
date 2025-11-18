@@ -21,6 +21,7 @@ import {
 import { applyPagePersonalization } from './personalization.js';
 import { rewriteLinks } from './rewriteLinks.js';
 import {partnerAgreement} from "./partnerAgreement.js";
+import {portalMessaging} from "./portalMessaging.js";
 // import PartnerNews  from '../blocks/partner-news/PartnerNews.js';
 
 // Add project-wide style path here.
@@ -55,6 +56,9 @@ const CONFIG = {
   if (searchParams.has(PARTNER_LOGIN_QUERY)) {
     searchParams.delete(PARTNER_LOGIN_QUERY);
     window.history.replaceState({}, '', url.toString());
+
+    // reset portal messaging popup after login
+    localStorage.removeItem('portal-messaging-popup-closed');
   }
 }());
 
@@ -106,7 +110,8 @@ async function loadPage() {
   await loadArea();
   applyPagePersonalization();
   rewriteLinks(document);
-  await partnerAgreement(miloLibs);
+  const partnerAgreementDisplayed = await partnerAgreement(miloLibs);
+  await portalMessaging(miloLibs, partnerAgreementDisplayed);
 }
 loadPage();
 

@@ -8,17 +8,32 @@ import {
   PERSONALIZATION_MARKER,
   PROCESSED_MARKER,
   PERSONALIZATION_CONDITIONS,
-  PROFILE_PERSONALIZATION_ACTIONS, LEVEL_CONDITION,
+  PROFILE_PERSONALIZATION_ACTIONS, LEVEL_CONDITION, PERSONALIZATION_IMS_PLACEHOLDERS,
 } from './personalizationConfigDX.js';
 import {
   PERSONALIZATION_HIDE,
 } from './personalizationUtils.js';
 import {DX_PROGRAM_TYPE} from "../blocks/utils/dxConstants.js";
 
-function personalizePlaceholders(placeholders, context = document, programType) {
+export function personalizePlaceholders(placeholders, context = document, programType) {
   Object.entries(placeholders).forEach(([key, value]) => {
     const programData = getPartnerDataCookieObject(programType);
     const placeholderValue = programData[key];
+    getNodesByXPath(value, context).forEach((el) => {
+      if (!placeholderValue) {
+        el.remove();
+        return;
+      }
+      el.textContent = el.textContent.replace(`$${key}`, placeholderValue);
+      el.classList.add(`${key.toLowerCase()}-placeholder`);
+    });
+  });
+}
+
+export async function personalizeImsPlaceholders(context = document) {
+  const imsProfile = await window?.adobeIMS.getProfile() || {};
+  Object.entries(PERSONALIZATION_IMS_PLACEHOLDERS).forEach(([key, value]) => {
+    const placeholderValue = imsProfile[key];
     getNodesByXPath(value, context).forEach((el) => {
       if (!placeholderValue) {
         el.remove();
@@ -79,7 +94,7 @@ function hideSections(page) {
   });
 }
 
-function personalizePage(page) {
+export function personalizePage(page) {
   const blocks = Array.from(page.getElementsByClassName(PERSONALIZATION_MARKER));
   blocks.forEach((el) => {
     const conditions = Object.values(el.classList);

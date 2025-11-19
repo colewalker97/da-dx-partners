@@ -6,8 +6,7 @@ import {
   transformCardUrl,
 } from '../utils/utils.js';
 import {
-  DIGITALEXPERIENCE_ASSETS_PATH,
-  DIGITALEXPERIENCE_PREVIEW_PATH,
+  DIGITALEXPERIENCE_PREVIEW_PATH, FILE_EXTENSION_TO_DOWNLOAD_LABEL,
   PARTNER_LEVEL, PX_ASSETS_PREVIEW_PATH,
 } from '../utils/dxConstants.js';
 
@@ -153,6 +152,7 @@ export default class AssetPreview extends LitElement {
     this.description = DOMPurify.sanitize(assetMetadata.description);
     this.fileType = DOMPurify.sanitize(assetMetadata.fileType);
     this.url = DOMPurify.sanitize(assetMetadata.url);
+    this.webinarPresentation = DOMPurify.sanitize(assetMetadata.webinarPresentation);
     this.previewImage = DOMPurify.sanitize(assetMetadata.previewImage || assetMetadata.thumbnailUrl);
     this.backButtonUrl = DOMPurify.sanitize(this.blockData.backButtonUrl);
     this.backButtonLabel = DOMPurify.sanitize(this.blockData.backButtonLabel || DEFAULT_BACK_BTN_LABEL);
@@ -223,7 +223,11 @@ export default class AssetPreview extends LitElement {
               <div class="asset-preview-block-actions">
               ${this.isPreviewEnabled(this.getFileTypeFromTag()) ? html`<button 
                 class="outline" ><a target="_blank" rel="noopener noreferrer" href="${this.getDownloadUrl()}"> View </a></button>` : ''}
-                <button class="filled"><a  download="${this.title}" href="${this.getDownloadUrl()}">${this.blockData.localizedText['{{Download}}']}</a></button>
+                <button class="filled"><a  download="${this.title}" href="${this.getDownloadUrl()}">${this.blockData.localizedText[`{{${this.getLabelBasedOnFileExtension(this.url)}}}`]}</a></button>
+                ${this.webinarPresentation ? html`
+                  <button class="filled"><a  download="${`${this.title}_presentation`}" href="${this.getWebinarPresentationDownloadUrl()}">${this.blockData.localizedText[`{{${this.getLabelBasedOnFileExtension(this.webinarPresentation)}}}`]}</a></button>
+                ` : ''}
+                
               ${this.backButtonUrl ? html`<a 
                 class="link" href="${this.backButtonUrl}">${this.blockData.localizedText[`{{${this.backButtonLabel}}}`]}</a>` : ''}
               </div>` : ''}
@@ -333,9 +337,24 @@ export default class AssetPreview extends LitElement {
     return this.url;
   }
 
+  getWebinarPresentationDownloadUrl() {
+    if (!this.webinarPresentation) return '#';
+    return this.webinarPresentation;
+  }
+
   isRestrictedAssetForUser() {
     return !(!this.assetPartnerLevel.length
       || this.assetPartnerLevel.includes('public')
       || this.assetPartnerLevel.includes(PARTNER_LEVEL));
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getLabelBasedOnFileExtension(url) {
+    const { pathname } = new URL(url);
+    const fileName = pathname.split('/').pop();
+    const parts = fileName.split('.');
+    const extension = parts.length > 1 ? parts.pop() : '';
+
+    return FILE_EXTENSION_TO_DOWNLOAD_LABEL[extension] || 'Download';
   }
 }

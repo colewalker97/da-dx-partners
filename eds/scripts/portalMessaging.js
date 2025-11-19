@@ -30,7 +30,7 @@ export async function portalMessaging(miloLibs, partnerAgreementDisplayed) {
     if (partnerAgreementDisplayed) return;
     if (!isMember()) return;
 
-    const modalClosed = localStorage.getItem('portal-messaging-popup-closed')
+    const modalClosed = sessionStorage.getItem('portal-messaging-popup-closed')
     if (modalClosed === 'true') return;
 
     const specialStateCookie = getPartnerDataCookieValue('specialstate');
@@ -69,7 +69,7 @@ export async function portalMessaging(miloLibs, partnerAgreementDisplayed) {
             class: 's-size',
             content: popupContent,
             closeCallback: () => {
-                localStorage.setItem("portal-messaging-popup-closed", "true");
+                sessionStorage.setItem("portal-messaging-popup-closed", "true");
             }
         },
     );

@@ -45,7 +45,7 @@ describe('Test portalMessaging.js', () => {
     document.head.innerHTML = '';
     document.body.innerHTML = '';
     document.cookie = '';
-    localStorage.clear();
+    sessionStorage.clear();
 
     const utils = require('../../eds/scripts/utils.js');
     getCurrentProgramType = utils.getCurrentProgramType;
@@ -96,8 +96,8 @@ describe('Test portalMessaging.js', () => {
     expect(mockGetModal).not.toHaveBeenCalled();
   });
 
-  it('returns early when popup already closed (localStorage flag)', async () => {
-    localStorage.setItem('portal-messaging-popup-closed', 'true');
+  it('returns early when popup already closed (sessionStorage flag)', async () => {
+    sessionStorage.setItem('portal-messaging-popup-closed', 'true');
     const { portalMessaging } = require('../../eds/scripts/portalMessaging.js');
     await portalMessaging(miloLibs, false);
     expect(global.fetch).not.toHaveBeenCalled();
@@ -152,7 +152,7 @@ describe('Test portalMessaging.js', () => {
     const options = lastCallArgs?.[1];
     expect(typeof options?.closeCallback).toBe('function');
     options.closeCallback();
-    expect(localStorage.getItem('portal-messaging-popup-closed')).toBe('true');
+    expect(sessionStorage.getItem('portal-messaging-popup-closed')).toBe('true');
   });
 
   it('renders locked-compliance popup when applicable', async () => {

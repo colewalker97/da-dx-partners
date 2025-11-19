@@ -58,7 +58,7 @@ const CONFIG = {
     window.history.replaceState({}, '', url.toString());
 
     // reset portal messaging popup after login
-    localStorage.removeItem('portal-messaging-popup-closed');
+    sessionStorage.removeItem('portal-messaging-popup-closed');
   }
 }());
 

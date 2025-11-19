@@ -63,7 +63,7 @@ export async function localizationPromises(localizedText, config) {
   return Promise.all(Object.keys(localizedText).map(async (key) => {
     const originalValue = localizedText[key];
     const replacedValue = await replaceText(key, config);
-    
+
     // Only replace if we got a meaningful result that's not just lowercase of the original
     if (replacedValue.length && replacedValue !== originalValue.toLowerCase()) {
       localizedText[key] = replacedValue;
@@ -72,11 +72,8 @@ export async function localizationPromises(localizedText, config) {
 }
 
 export function getRuntimeActionUrl(action) {
-  const { env } = getConfig();
-  let domain = 'https://14257-dxpartners-dekidev.adobeioruntime.net';
-  if (env.name === 'prod') {
-    domain = 'https://io-partners-dx.adobe.com';
-  }
+  const isProd = prodHosts.includes(window.location.host);
+  let domain = isProd ? 'https://io-partners-dx.stage.adobe.com' : 'https://io-partners-dx.adobe.com';
   return new URL(
     `${domain}${action}`,
   );

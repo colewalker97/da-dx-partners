@@ -48,3 +48,15 @@ export const FILE_EXTENSION_TO_DOWNLOAD_LABEL = {
   dll: 'Download File',
   dat: 'Download File',
 };
+
+export const DX_COMPLIANCE_STATUS = {
+    COMPLETED: 'Completed',
+    NOT_COMPLETED: 'Not Completed'
+}
+
+export const DX_SPECIAL_STATE = {
+    LOCKED: 'locked',
+    LOCKED_COMPLIANCE_PAST: 'locked-compliance-past',
+    LOCKED_PAYMENT_FUTURE: 'locked-payment-future',
+    SUBMITTED_IN_REVIEW: 'submitted-in-review',
+}

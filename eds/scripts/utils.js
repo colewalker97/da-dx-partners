@@ -377,17 +377,33 @@ function setApiParams(api, block) {
   return api.toString();
 }
 
+function getAuthoredList(col) {
+  let authoredList = col.querySelectorAll('li');
+  if(authoredList && authoredList.length){
+    return Array.from(authoredList).map(li => li.textContent.trim()).join(',');
+  }
+  return col.textContent.trim();
+}
+
 export function getCaasUrl(block) {
-  const domain = `${(!prodHosts.includes(window.location.host)) ? 'https://14257-chimera-stage.adobeioruntime.net/api/v1/web/chimera-0.0.1' : 'https://www.adobe.com/chimera-api'}`;
+  let isNonProd = !prodHosts.includes(window.location.host);
+  const domain = `${isNonProd ? 'https://14257-chimera-stage.adobeioruntime.net/api/v1/web/chimera-0.0.1' : 'https://www.adobe.com/chimera-api'}`;
   let sources = 'da-dx-partners';
+  let featuredQuery = '';
   Array.from(block.el.children).forEach((row) => {
     const cols = Array.from(row.children);
     const rowTitle = cols[0].textContent.trim().toLowerCase().replace(/ /g, '-');
     if (rowTitle === 'sources' && cols.length>1) {
-      sources = cols[1].textContent.trim()
+      sources = getAuthoredList(cols[1])
+    }
+    if(isNonProd && rowTitle === 'featured-cards-stage' && cols.length>1){
+      featuredQuery = `&featuredCards=${(getAuthoredList(cols[1]))}`;
+    }
+    if(!isNonProd && rowTitle === 'featured-cards' && cols.length>1){
+      featuredQuery = `&featuredCards=${(getAuthoredList(cols[1]))}`;
     }
   });
-  const api = new URL(`${domain}/collection?originSelection=${sources}&draft=false&flatFile=false&expanded=true`);
+  const api = new URL(`${domain}/collection?originSelection=${sources}${featuredQuery}&draft=false&flatFile=false&expanded=true`);
   return setApiParams(api, block);
 }
 

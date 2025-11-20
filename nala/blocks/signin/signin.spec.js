@@ -93,7 +93,7 @@ export default {
       path: ' https://partners.stage.adobe.com/digitalexperience/',
       tags: '@da-dx-signin @regression @circleCi',
       data: {
-        partnerLevel: 'app-abandoned:',
+        partnerLevel: 'dxp-abandoned:',
         expectedToSeeInURL: '/digitalexperience/error/account-inactive',
       },
     },
@@ -103,7 +103,7 @@ export default {
       path: ' https://partners.stage.adobe.com/digitalexperience/',
       tags: '@da-dx-signin @regression @circleCi',
       data: {
-        partnerLevel: 'app-terminated:',
+        partnerLevel: 'dxp-terminated:',
         expectedToSeeInURL: '/digitalexperience/error/ineligible',
       },
     },
@@ -113,7 +113,7 @@ export default {
       path: ' https://partners.stage.adobe.com/digitalexperience/',
       tags: '@da-dx-signin @regression @circleCi',
       data: {
-        partnerLevel: 'app-rejected:',
+        partnerLevel: 'dxp-rejected:',
         expectedToSeeInURL: '/digitalexperience/error/decline',
       },
     },
@@ -175,6 +175,17 @@ export default {
       data: {
         partnerLevel: 'dxp-silver:',
         expectedToSeeInURL: '/digitalexperience/drafts/automation/regression/silver/silver-page',
+      },
+    },
+    {
+      tcid: '18',
+      name: '@double-access-protected-page-with-non-member-user',
+      path: 'https://partners.stage.adobe.com/digitalexperience/drafts/automation/regression/public-page',
+      tags: '@da-dx-signin @regression @circleCi',
+      data: {
+        partnerLevel: 'cpp-distributor-india:',
+        expectedToContactNotFoundInURL: '/digitalexperience/error/contact-not-found#',
+        secondaccess404Url: '/digitalexperience/drafts/automation/regression/silver/silver-page',
       },
     },
   ],

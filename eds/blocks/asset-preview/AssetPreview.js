@@ -350,11 +350,15 @@ export default class AssetPreview extends LitElement {
 
   // eslint-disable-next-line class-methods-use-this
   getLabelBasedOnFileExtension(url) {
-    const { pathname } = new URL(url);
-    const fileName = pathname.split('/').pop();
-    const parts = fileName.split('.');
-    const extension = parts.length > 1 ? parts.pop() : '';
+    try {
+      const { pathname } = new URL(url);
+      const fileName = pathname.split('/').pop();
+      const parts = fileName.split('.');
+      const extension = parts.length > 1 ? parts.pop() : '';
 
-    return FILE_EXTENSION_TO_DOWNLOAD_LABEL[extension] || 'Download';
+      return FILE_EXTENSION_TO_DOWNLOAD_LABEL[extension] || 'Download';
+    } catch (error) {
+      return 'Download';
+    }
   }
 }

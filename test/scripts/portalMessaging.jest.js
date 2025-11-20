@@ -9,6 +9,11 @@ jest.mock('https://test-milo-libs.com/blocks/modal/modal.js', () => ({
 
 jest.mock('../../eds/scripts/personalizationConfigDX.js', () => ({
   PERSONALIZATION_PLACEHOLDERS: {},
+  PERSONALIZATION_CONDITIONS: {
+    'submitted-in-review': () => true,
+    'locked-compliance-past': () => true,
+    'locked-payment-future': () => true,
+  },
 }));
 jest.mock('../../eds/scripts/personalization.js', () => ({
   personalizeImsPlaceholders: jest.fn(async () => {}),
@@ -21,6 +26,7 @@ jest.mock('../../eds/scripts/utils.js', () => ({
   getMetadataContent: jest.fn(),
   getPartnerDataCookieValue: jest.fn(),
   isMember: jest.fn(),
+  // The following are not used by portalMessaging.js but remain mocked for compatibility
   lockedPartnerHasComplianceStatus: jest.fn(),
   partnerHasSpecialState: jest.fn(),
 }));
@@ -32,6 +38,7 @@ describe('Test portalMessaging.js', () => {
   let getMetadataContent;
   let getPartnerDataCookieValue;
   let isMember;
+  // kept for compatibility, but not used by the implementation
   let lockedPartnerHasComplianceStatus;
   let partnerHasSpecialState;
 
@@ -113,7 +120,8 @@ describe('Test portalMessaging.js', () => {
   });
 
   it('warns and returns when fragment path missing', async () => {
-    partnerHasSpecialState.mockReturnValue(true);
+    // ensure condition resolves and flow advances
+    getPartnerDataCookieValue.mockReturnValue('submitted-in-review');
     getMetadataContent.mockReturnValue(null);
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     const { portalMessaging } = require('../../eds/scripts/portalMessaging.js');
@@ -124,7 +132,7 @@ describe('Test portalMessaging.js', () => {
   });
 
   it('logs error and warns when fragment fetch fails', async () => {
-    partnerHasSpecialState.mockReturnValue(true);
+    getPartnerDataCookieValue.mockReturnValue('submitted-in-review');
     getMetadataContent.mockReturnValue('/fragments/test-popup');
     global.fetch.mockResolvedValueOnce({ ok: false, status: 500, text: () => Promise.resolve('') });
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -139,7 +147,7 @@ describe('Test portalMessaging.js', () => {
   });
 
   it('renders submitted-in-review popup', async () => {
-    partnerHasSpecialState.mockImplementation((state) => state === 'submitted-in-review');
+    getPartnerDataCookieValue.mockReturnValue('submitted-in-review');
     getMetadataContent.mockReturnValue('/fragments/submitted-in-review-popup');
 
     const { portalMessaging } = require('../../eds/scripts/portalMessaging.js');
@@ -156,8 +164,7 @@ describe('Test portalMessaging.js', () => {
   });
 
   it('renders locked-compliance popup when applicable', async () => {
-    partnerHasSpecialState.mockImplementation((state) => state === 'locked-compliance-past');
-    lockedPartnerHasComplianceStatus.mockImplementation((status) => status === 'Completed');
+    getPartnerDataCookieValue.mockReturnValue('locked-compliance-past');
     getMetadataContent.mockReturnValue('/fragments/locked-compliance-popup');
 
     const { portalMessaging } = require('../../eds/scripts/portalMessaging.js');
@@ -166,7 +173,7 @@ describe('Test portalMessaging.js', () => {
   });
 
   it('renders locked-payment popup when applicable', async () => {
-    partnerHasSpecialState.mockImplementation((state) => state === 'locked-payment-future');
+    getPartnerDataCookieValue.mockReturnValue('locked-payment-future');
     getMetadataContent.mockReturnValue('/fragments/locked-payment-popup');
 
     const { portalMessaging } = require('../../eds/scripts/portalMessaging.js');

@@ -36,11 +36,11 @@ export const PERSONALIZATION_CONDITIONS = {
   'partner-non-admin': !isAdminUser(),
   'partner-primary': getPartnerDataCookieValue('primarycontact'),
   'partner-newly-registered': isPartnerNewlyRegistered(),
-  'locked-compliance': lockedPartnerHasComplianceStatus(DX_COMPLIANCE_STATUS.NOT_COMPLETED),
-  'locked-payment': lockedPartnerHasComplianceStatus(DX_COMPLIANCE_STATUS.COMPLETED),
-  'locked-compliance-past': partnerHasSpecialState(DX_SPECIAL_STATE.LOCKED_COMPLIANCE_PAST),
-  'locked-payment-future': partnerHasSpecialState(DX_SPECIAL_STATE.LOCKED_PAYMENT_FUTURE),
-  'submitted-in-review': partnerHasSpecialState(DX_SPECIAL_STATE.SUBMITTED_IN_REVIEW),
+  'locked-compliance': () => lockedPartnerHasComplianceStatus(DX_COMPLIANCE_STATUS.NOT_COMPLETED),
+  'locked-payment': () => lockedPartnerHasComplianceStatus(DX_COMPLIANCE_STATUS.COMPLETED),
+  'locked-compliance-past': () => partnerHasSpecialState(DX_SPECIAL_STATE.LOCKED_COMPLIANCE_PAST),
+  'locked-payment-future': () => partnerHasSpecialState(DX_SPECIAL_STATE.LOCKED_PAYMENT_FUTURE),
+  'submitted-in-review': () => partnerHasSpecialState(DX_SPECIAL_STATE.SUBMITTED_IN_REVIEW),
 };
 
 export const PROFILE_PERSONALIZATION_ACTIONS = {

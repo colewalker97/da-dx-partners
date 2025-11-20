@@ -1,13 +1,11 @@
 import {
     getCurrentProgramType,
     getMetadataContent,
-    getPartnerDataCookieValue, isMember,
-    lockedPartnerHasComplianceStatus,
-    partnerHasSpecialState
+    getPartnerDataCookieValue,
+    isMember
 } from "./utils.js";
-import {PERSONALIZATION_PLACEHOLDERS} from "./personalizationConfigDX.js";
+import {PERSONALIZATION_CONDITIONS, PERSONALIZATION_PLACEHOLDERS} from "./personalizationConfigDX.js";
 import {personalizeImsPlaceholders, personalizePage, personalizePlaceholders} from "./personalization.js";
-import {DX_COMPLIANCE_STATUS, DX_SPECIAL_STATE} from "../blocks/utils/dxConstants.js";
 
 async function loadPopupFragment(popupFragment) {
     const response = await fetch(popupFragment);
@@ -22,7 +20,7 @@ async function loadPopupFragment(popupFragment) {
     const main = body.querySelector('main');
     personalizePlaceholders(PERSONALIZATION_PLACEHOLDERS, main, getCurrentProgramType());
     personalizePage(main);
-    await personalizeImsPlaceholders(main)
+    await personalizeImsPlaceholders(main);
     return main.firstElementChild;
 }
 
@@ -37,15 +35,9 @@ export async function portalMessaging(miloLibs, partnerAgreementDisplayed) {
     if (!specialStateCookie) return;
 
     let popupType;
-    if (partnerHasSpecialState(DX_SPECIAL_STATE.SUBMITTED_IN_REVIEW)) {
-        popupType = 'submitted-in-review-popup';
-    }
-    if (partnerHasSpecialState(DX_SPECIAL_STATE.LOCKED_COMPLIANCE_PAST) &&
-        (lockedPartnerHasComplianceStatus(DX_COMPLIANCE_STATUS.COMPLETED) || (lockedPartnerHasComplianceStatus(DX_COMPLIANCE_STATUS.NOT_COMPLETED)))) {
-        popupType = 'locked-compliance-popup'
-    }
-    if (partnerHasSpecialState(DX_SPECIAL_STATE.LOCKED_PAYMENT_FUTURE)) {
-        popupType = 'locked-payment-popup';
+
+    if (PERSONALIZATION_CONDITIONS[specialStateCookie]?.()) {
+        popupType = `${specialStateCookie}-modal`;
     }
     if (!popupType) return;
 

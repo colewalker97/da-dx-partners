@@ -35,9 +35,14 @@ export async function portalMessaging(miloLibs, partnerAgreementDisplayed) {
     if (!specialStateCookie) return;
 
     let popupType;
-
-    if (PERSONALIZATION_CONDITIONS[specialStateCookie]?.()) {
-        popupType = `${specialStateCookie}-modal`;
+    if (PERSONALIZATION_CONDITIONS['submitted-in-review']) {
+        popupType = 'submitted-in-review-modal';
+    }
+    if (PERSONALIZATION_CONDITIONS['locked-compliance-past']) {
+        popupType = 'locked-compliance-past-modal';
+    }
+    if (PERSONALIZATION_CONDITIONS['locked-payment-future']) {
+        popupType = 'locked-payment-future-modal';
     }
     if (!popupType) return;
 

@@ -26,9 +26,6 @@ jest.mock('../../eds/scripts/utils.js', () => ({
   getMetadataContent: jest.fn(),
   getPartnerDataCookieValue: jest.fn(),
   isMember: jest.fn(),
-  // The following are not used by portalMessaging.js but remain mocked for compatibility
-  lockedPartnerHasComplianceStatus: jest.fn(),
-  partnerHasSpecialState: jest.fn(),
 }));
 
 global.fetch = jest.fn();
@@ -38,10 +35,6 @@ describe('Test portalMessaging.js', () => {
   let getMetadataContent;
   let getPartnerDataCookieValue;
   let isMember;
-  // kept for compatibility, but not used by the implementation
-  let lockedPartnerHasComplianceStatus;
-  let partnerHasSpecialState;
-
   const miloLibs = 'https://test-milo-libs.com';
 
   beforeEach(() => {
@@ -59,9 +52,6 @@ describe('Test portalMessaging.js', () => {
     getMetadataContent = utils.getMetadataContent;
     getPartnerDataCookieValue = utils.getPartnerDataCookieValue;
     isMember = utils.isMember;
-    lockedPartnerHasComplianceStatus = utils.lockedPartnerHasComplianceStatus;
-    partnerHasSpecialState = utils.partnerHasSpecialState;
-
     isMember.mockReturnValue(true);
     getPartnerDataCookieValue.mockReturnValue('has-specialstate');
 

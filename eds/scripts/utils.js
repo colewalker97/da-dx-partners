@@ -262,21 +262,6 @@ export function isPartnerNewlyRegistered() {
   return differenceInMilliseconds > 0 && differenceInDays < 31;
 }
 
-export function partnerHasSpecialState(stateName) {
-  if (!isMember()) return false;
-  const specialState = getPartnerDataCookieValue('specialstate');
-  return specialState === stateName;
-}
-
-export function lockedPartnerHasComplianceStatus(status) {
-  if (!isMember()) return false;
-  const complianceStatus = getPartnerDataCookieValue('compliancestatus');
-  return (
-      status.toLowerCase() === complianceStatus &&
-      (partnerHasSpecialState(DX_SPECIAL_STATE.LOCKED) || partnerHasSpecialState(DX_SPECIAL_STATE.LOCKED_COMPLIANCE_PAST))
-  );
-}
-
 export function isMember() {
   return getPartnerDataCookieObject(getCurrentProgramType())?.status === 'MEMBER';
 }

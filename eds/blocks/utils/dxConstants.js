@@ -60,3 +60,19 @@ export const DX_SPECIAL_STATE = {
     LOCKED_PAYMENT_FUTURE: 'locked-payment-future',
     SUBMITTED_IN_REVIEW: 'submitted-in-review',
 }
+
+export const DX_PRIMARY_BUSINESS = {
+    SOLUTION: 'Solution',
+    TECHNOLOGY: 'Technology',
+}
+
+export const DX_ACCESS_TYPE = {
+    BILLING_ADMIN: 'Billing Admin',
+    SALES_CENTER_ADMIN: 'Sales Center Admin',
+    ADMIN: 'Admin'
+}
+
+export const DX_DESIGNATION_TYPE = {
+    LEGAL_AND_COMPLIANCE: 'Legal and Compliance',
+    LEARNING_AND_DEVELOPMENT: 'Learning & Development'
+}

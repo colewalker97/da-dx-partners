@@ -16,7 +16,6 @@ jest.mock('../../eds/scripts/personalizationConfigDX.js', () => ({
   },
 }));
 jest.mock('../../eds/scripts/personalization.js', () => ({
-  personalizeImsPlaceholders: jest.fn(async () => {}),
   personalizePage: jest.fn(() => {}),
   personalizePlaceholders: jest.fn(() => {}),
 }));

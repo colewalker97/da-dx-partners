@@ -24,11 +24,8 @@ export const PERSONALIZATION_PLACEHOLDERS = {
   'primaryJobRole': '//*[contains(text(), "$primaryJobRole")]',
   'accountName': '//*[contains(text(), "$accountName")]',
   'company': '//*[contains(text(), "$company")]',
-};
-
-export const PERSONALIZATION_IMS_PLACEHOLDERS = {
   'email': '//*[contains(text(), "$email")]'
-}
+};
 
 export const LEVEL_CONDITION = 'partner-level';
 export const PERSONALIZATION_MARKER = 'partner-personalization';

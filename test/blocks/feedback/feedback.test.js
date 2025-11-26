@@ -327,7 +327,6 @@ describe('feedback block', () => {
     });
 
     it('should include user profile data when partner is signed in', async () => {
-      // Set partner cookie to simulate signed-in user
       const partnerData = {
         DXP: {
           firstName: 'John',
@@ -353,19 +352,16 @@ describe('feedback block', () => {
       // eslint-disable-next-line no-promise-executor-return
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      // Verify fetch was called with user data
       const fetchCall = fetchStub.getCalls().find((call) => call.args[0].includes('forms.adobe.com'));
       expect(fetchCall).to.exist;
       const payload = JSON.parse(fetchCall.args[1].body);
       expect(payload.data.userName).to.equal('John Doe');
       expect(payload.data.userEmail).to.equal('john.doe@example.com');
 
-      // Clean up cookie
       document.cookie = 'partner_data=; Path=/; Max-Age=0;';
     });
 
     it('should handle profile data parsing error when partner is signed in', async () => {
-      // Set invalid partner cookie data
       document.cookie = 'partner_data=invalid-json-data';
       const consoleErrorStub = sinon.stub(console, 'error');
       const consoleInfoStub = sinon.stub(console, 'info');
@@ -385,7 +381,6 @@ describe('feedback block', () => {
       // eslint-disable-next-line no-promise-executor-return
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      // Verify fetch was called with 'invalid' fallback values
       const fetchCall = fetchStub.getCalls().find((call) => call.args[0].includes('forms.adobe.com'));
       expect(fetchCall).to.exist;
       const payload = JSON.parse(fetchCall.args[1].body);
@@ -393,10 +388,41 @@ describe('feedback block', () => {
       expect(payload.data.userEmail).to.equal('invalid');
       expect(consoleInfoStub.calledOnce).to.be.true;
 
-      // Clean up
       document.cookie = 'partner_data=; Path=/; Max-Age=0;';
       consoleErrorStub.restore();
       consoleInfoStub.restore();
+    });
+
+    it('should handle invalid URL in constructSubmitUrl', async () => {
+      fetchStub.restore();
+      fetchStub = sinon.stub(window, 'fetch').callsFake((url) => {
+        if (url === null || url === 'null') {
+          return Promise.reject(new Error('Invalid URL'));
+        }
+        return Promise.resolve({ ok: true, status: 200, text: async () => '' });
+      });
+
+      const feedbackModule = await import('../../../eds/blocks/feedback/feedback.js');
+      const block = document.querySelector('.feedback');
+      await feedbackModule.default(block);
+
+      const stickyButton = document.querySelector('.sticky-feedback-button');
+      stickyButton.click();
+
+      const stars = document.querySelectorAll('sp-action-button[data-rating]');
+      stars[3].click();
+      
+      const btoaStub = sinon.stub(window, 'btoa').throws(new Error('btoa error'));
+
+      const sendButton = document.querySelector('.feedback-dialog-button.cta');
+      sendButton.click();
+      // eslint-disable-next-line no-promise-executor-return
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const toast = document.querySelector('.feedback-toast.spectrum-Toast--negative');
+      expect(toast).to.exist;
+
+      btoaStub.restore();
     });
   });
 });

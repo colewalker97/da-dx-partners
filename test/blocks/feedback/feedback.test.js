@@ -240,5 +240,129 @@ describe('feedback block', () => {
       const dialog = document.querySelector('.feedback-dialog');
       expect(dialog).to.exist;
     });
+
+    it('should auto-hide success toast after 5 seconds', async () => {
+      const clock = sinon.useFakeTimers();
+      const { default: init } = await import('../../../eds/blocks/feedback/feedback.js');
+      const block = document.querySelector('.feedback');
+      await init(block);
+
+      const stickyButton = document.querySelector('.sticky-feedback-button');
+      stickyButton.click();
+
+      const stars = document.querySelectorAll('sp-action-button[data-rating]');
+      stars[3].click();
+
+      const sendButton = document.querySelector('.feedback-dialog-button.cta');
+      sendButton.click();
+      await clock.tickAsync(50);
+
+      const toast = document.querySelector('.feedback-toast.spectrum-Toast--positive');
+      expect(toast).to.exist;
+
+      await clock.tickAsync(5000);
+      expect(toast.classList.contains('feedback-toast-show')).to.be.false;
+
+      await clock.tickAsync(300);
+      expect(document.querySelector('.feedback-toast')).to.not.exist;
+
+      clock.restore();
+    });
+
+    it('should handle invalid form definition URL', async () => {
+      const { default: init } = await import('../../../eds/blocks/feedback/feedback.js');
+      
+      document.body.innerHTML = '<div class="feedback"><div><div>Feedback-Definition</div><div>invalid-url</div></div></div>';
+      const block = document.querySelector('.feedback');
+      
+      await init(block);
+
+      const stickyButton = document.querySelector('.sticky-feedback-button');
+      stickyButton.click();
+
+      const stars = document.querySelectorAll('sp-action-button[data-rating]');
+      stars[3].click();
+
+      const sendButton = document.querySelector('.feedback-dialog-button.cta');
+      sendButton.click();
+      // eslint-disable-next-line no-promise-executor-return
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const toast = document.querySelector('.feedback-toast.spectrum-Toast--negative');
+      expect(toast).to.exist;
+    });
+
+    it('should include user profile data when partner is signed in', async () => {
+      const { default: init, partnerIsSignedIn, getPartnerDataCookieObject, getCurrentProgramType } = await import('../../../eds/blocks/feedback/feedback.js');
+      const utils = await import('../../../eds/scripts/utils.js');
+      
+      const partnerSignedInStub = sinon.stub(utils, 'partnerIsSignedIn').returns(true);
+      const getCurrentProgramTypeStub = sinon.stub(utils, 'getCurrentProgramType').returns('test-program');
+      const getPartnerDataStub = sinon.stub(utils, 'getPartnerDataCookieObject').returns({
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john.doe@example.com',
+      });
+
+      const block = document.querySelector('.feedback');
+      await init(block);
+
+      const stickyButton = document.querySelector('.sticky-feedback-button');
+      stickyButton.click();
+
+      const stars = document.querySelectorAll('sp-action-button[data-rating]');
+      stars[3].click();
+
+      const sendButton = document.querySelector('.feedback-dialog-button.cta');
+      sendButton.click();
+      // eslint-disable-next-line no-promise-executor-return
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const fetchCall = fetchStub.getCalls().find((call) => call.args[0].includes('forms.adobe.com'));
+      expect(fetchCall).to.exist;
+      const payload = JSON.parse(fetchCall.args[1].body);
+      expect(payload.data.userName).to.equal('John Doe');
+      expect(payload.data.userEmail).to.equal('john.doe@example.com');
+
+      partnerSignedInStub.restore();
+      getCurrentProgramTypeStub.restore();
+      getPartnerDataStub.restore();
+    });
+
+    it('should handle profile data parsing error when partner is signed in', async () => {
+      const { default: init } = await import('../../../eds/blocks/feedback/feedback.js');
+      const utils = await import('../../../eds/scripts/utils.js');
+      const consoleInfoStub = sinon.stub(console, 'info');
+      
+      const partnerSignedInStub = sinon.stub(utils, 'partnerIsSignedIn').returns(true);
+      const getCurrentProgramTypeStub = sinon.stub(utils, 'getCurrentProgramType').returns('test-program');
+      const getPartnerDataStub = sinon.stub(utils, 'getPartnerDataCookieObject').throws(new Error('Invalid cookie'));
+
+      const block = document.querySelector('.feedback');
+      await init(block);
+
+      const stickyButton = document.querySelector('.sticky-feedback-button');
+      stickyButton.click();
+
+      const stars = document.querySelectorAll('sp-action-button[data-rating]');
+      stars[3].click();
+
+      const sendButton = document.querySelector('.feedback-dialog-button.cta');
+      sendButton.click();
+      // eslint-disable-next-line no-promise-executor-return
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const fetchCall = fetchStub.getCalls().find((call) => call.args[0].includes('forms.adobe.com'));
+      expect(fetchCall).to.exist;
+      const payload = JSON.parse(fetchCall.args[1].body);
+      expect(payload.data.userName).to.equal('invalid');
+      expect(payload.data.userEmail).to.equal('invalid');
+      expect(consoleInfoStub.calledOnce).to.be.true;
+
+      partnerSignedInStub.restore();
+      getCurrentProgramTypeStub.restore();
+      getPartnerDataStub.restore();
+      consoleInfoStub.restore();
+    });
   });
 });

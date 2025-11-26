@@ -148,8 +148,7 @@ export default class AssetPreview extends LitElement {
   async setData(assetMetadata) {
     this.title = DOMPurify.sanitize(assetMetadata.title);
     document.title = DOMPurify.sanitize(assetMetadata.title);
-    this.summary = DOMPurify.sanitize(assetMetadata.summary);
-    this.description = DOMPurify.sanitize(assetMetadata.description);
+    this.summary = DOMPurify.sanitize(assetMetadata.summary) || DOMPurify.sanitize(assetMetadata.description);
     this.fileType = DOMPurify.sanitize(assetMetadata.fileType);
     this.url = DOMPurify.sanitize(assetMetadata.url);
     this.webinarPresentation = DOMPurify.sanitize(assetMetadata.webinarPresentation);
@@ -205,7 +204,7 @@ export default class AssetPreview extends LitElement {
             <div class="asset-preview-block-details-left">
               ${this.createdDate ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Date}}']}: </span>${this.createdDate}</p>` : ''}
               ${this.getTagsTitlesString(this.audienceTags) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Audience}}']}: </span>${unsafeHTML(this.getTagsTitlesString(this.audienceTags))}</p>` : ''}
-              ${(this.isVideo ? this.description : this.summary || this.description) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Summary}}']}: </span>${this.isVideo ? unsafeHTML(this.description) : unsafeHTML(this.summary) || unsafeHTML(this.description)}</p>` : ''}
+              ${this.summary ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Summary}}']}: </span>${unsafeHTML(this.summary)}</p>` : ''}
               ${this.getTagsTitlesString(this.fileFormatTags) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Type}}']}: </span>${unsafeHTML(this.getTagsTitlesString(this.fileFormatTags))}</p>` : ''}
               ${this.getTagsTitlesString(this.tags) ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Tags}}']}: </span>${unsafeHTML(this.getTagsTitlesString(this.tags))}</p>` : ''}
               ${this.size ? html`<p><span class="asset-preview-block-details-left-label">${this.blockData.localizedText['{{Size}}']}: </span class="bold">${unsafeHTML(this.size)}</p>` : ''}

@@ -274,6 +274,35 @@ export function signedInNonMember() {
   return partnerIsSignedIn() && !isMember();
 }
 
+export function partnerDataCookieContainsValue(key, value) {
+  const cookieValue = getPartnerDataCookieValue(key);
+  if (!cookieValue) return false;
+  return cookieValue.includes(value.toLowerCase());
+}
+
+export function getDaysFromRegistration() {
+  if (!partnerIsSignedIn()) return null;
+
+  const createdDate = getPartnerDataCookieValue('createddate');
+  if (!createdDate) return null;
+
+  const registrationDate = new Date(createdDate);
+  const now = new Date();
+
+  const differenceInMilliseconds = now - registrationDate;
+  if (differenceInMilliseconds < 0) return null;
+
+  return differenceInMilliseconds / (1000 * 60 * 60 * 24);
+}
+
+export function isReturningUser(daysNumber) {
+  const days = getDaysFromRegistration();
+  if (days === null) return false;
+  const upperDaysLimit = daysNumber + 1;
+  const lowerDaysLimit = upperDaysLimit - 30;
+  return days >= lowerDaysLimit && days < upperDaysLimit;
+}
+
 function isDxpMember() {
   return getPartnerDataCookieValue('status', 'dxp') === 'member';
 }

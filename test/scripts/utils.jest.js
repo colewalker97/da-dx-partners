@@ -28,6 +28,9 @@ import {
   getCaasUrl,
   getNodesByXPath,
   setLibs,
+  partnerDataCookieContainsValue,
+  getDaysFromRegistration,
+  isReturningUser,
 } from '../../eds/scripts/utils.js';
 import {DX_PROGRAM_TYPE} from "../../eds/blocks/utils/dxConstants.js";
 
@@ -324,5 +327,68 @@ describe('Test utils.js', () => {
     const cookieObject = { DXP: { firstName: 'test' , salesCenterAccess: false }};
     document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
     expect(hasSalesCenterAccess()).toBe(false);
+  });
+  it('partnerDataCookieContainsValue returns true when accessType value matches', () => {
+    const cookieObject = { DXP: { accessType: 'Billing Admin' } };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+    expect(partnerDataCookieContainsValue('accesstype', 'billing admin')).toBe(true);
+  });
+  it('partnerDataCookieContainsValue returns false when key missing or cookie absent', () => {
+    document.cookie = 'partner_data=';
+    expect(partnerDataCookieContainsValue('designationtype', 'legal and compliance')).toBe(false);
+    const cookieObject = { DXP: { other: 'value' } };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+    expect(partnerDataCookieContainsValue('designationtype', 'legal and compliance')).toBe(false);
+  });
+  it('getDaysFromRegistration returns null when not signed in or missing createddate', () => {
+    document.cookie = 'partner_data=';
+    expect(getDaysFromRegistration()).toBeNull();
+    const cookieObject = { DXP: { status: 'MEMBER' } };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+    expect(getDaysFromRegistration()).toBeNull();
+  });
+  it('getDaysFromRegistration returns null for future registration date', () => {
+    const future = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString();
+    const cookieObject = { DXP: { status: 'MEMBER', createddate: future } };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+    expect(getDaysFromRegistration()).toBeNull();
+  });
+  it('getDaysFromRegistration returns days since registration (approximate)', () => {
+    const tenDaysMs = 10 * 24 * 60 * 60 * 1000;
+    const past = new Date(Date.now() - tenDaysMs).toISOString();
+    const cookieObject = { DXP: { status: 'MEMBER', createddate: past } };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+    const days = getDaysFromRegistration();
+    expect(days).toBeGreaterThanOrEqual(9);
+    expect(days).toBeLessThan(11);
+  });
+  it('isReturningUser returns false when not signed in or no createddate', () => {
+    document.cookie = 'partner_data=';
+    expect(isReturningUser(30)).toBe(false);
+    const cookieObject = { DXP: { status: 'MEMBER' } };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+    expect(isReturningUser(30)).toBe(false);
+  });
+  it('isReturningUser true if days within (daysNumber+1)-30 window', () => {
+    // For daysNumber = 30: window is [1, 31)
+    const fiveDaysMs = 5 * 24 * 60 * 60 * 1000;
+    const past = new Date(Date.now() - fiveDaysMs).toISOString();
+    const cookieObject = { DXP: { status: 'MEMBER', createddate: past } };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+    expect(isReturningUser(30)).toBe(true);
+  });
+  it('isReturningUser false if below lower bound (< 1 day)', () => {
+    const halfDayMs = 12 * 60 * 60 * 1000;
+    const past = new Date(Date.now() - halfDayMs).toISOString();
+    const cookieObject = { DXP: { status: 'MEMBER', createddate: past } };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+    expect(isReturningUser(30)).toBe(false);
+  });
+  it('isReturningUser false if at or above upper bound (>= daysNumber+1)', () => {
+    const thirtyOneDaysMs = 31 * 24 * 60 * 60 * 1000;
+    const past = new Date(Date.now() - thirtyOneDaysMs).toISOString();
+    const cookieObject = { DXP: { status: 'MEMBER', createddate: past } };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+    expect(isReturningUser(30)).toBe(false);
   });
 });

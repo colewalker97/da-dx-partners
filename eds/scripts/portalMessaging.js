@@ -5,7 +5,7 @@ import {
     isMember
 } from "./utils.js";
 import {PERSONALIZATION_CONDITIONS, PERSONALIZATION_PLACEHOLDERS} from "./personalizationConfigDX.js";
-import {personalizeImsPlaceholders, personalizePage, personalizePlaceholders} from "./personalization.js";
+import {personalizePage, personalizePlaceholders} from "./personalization.js";
 
 async function loadPopupFragment(popupFragment) {
     const response = await fetch(popupFragment);
@@ -20,7 +20,6 @@ async function loadPopupFragment(popupFragment) {
     const main = body.querySelector('main');
     personalizePlaceholders(PERSONALIZATION_PLACEHOLDERS, main, getCurrentProgramType());
     personalizePage(main);
-    await personalizeImsPlaceholders(main);
     return main.firstElementChild;
 }
 

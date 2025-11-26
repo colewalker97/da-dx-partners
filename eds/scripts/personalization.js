@@ -8,7 +8,7 @@ import {
   PERSONALIZATION_MARKER,
   PROCESSED_MARKER,
   PERSONALIZATION_CONDITIONS,
-  PROFILE_PERSONALIZATION_ACTIONS, LEVEL_CONDITION, PERSONALIZATION_IMS_PLACEHOLDERS,
+  PROFILE_PERSONALIZATION_ACTIONS, LEVEL_CONDITION,
 } from './personalizationConfigDX.js';
 import {
   PERSONALIZATION_HIDE,
@@ -19,21 +19,6 @@ export function personalizePlaceholders(placeholders, context = document, progra
   Object.entries(placeholders).forEach(([key, value]) => {
     const programData = getPartnerDataCookieObject(programType);
     const placeholderValue = programData[key];
-    getNodesByXPath(value, context).forEach((el) => {
-      if (!placeholderValue) {
-        el.remove();
-        return;
-      }
-      el.textContent = el.textContent.replace(`$${key}`, placeholderValue);
-      el.classList.add(`${key.toLowerCase()}-placeholder`);
-    });
-  });
-}
-
-export async function personalizeImsPlaceholders(context = document) {
-  const imsProfile = await window?.adobeIMS.getProfile() || {};
-  Object.entries(PERSONALIZATION_IMS_PLACEHOLDERS).forEach(([key, value]) => {
-    const placeholderValue = imsProfile[key];
     getNodesByXPath(value, context).forEach((el) => {
       if (!placeholderValue) {
         el.remove();

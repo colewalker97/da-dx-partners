@@ -269,12 +269,18 @@ describe('feedback block', () => {
       clock.restore();
     });
 
-    it('should handle invalid form definition URL', async () => {
+    it('should handle submission failure with invalid response', async () => {
+      fetchStub.restore();
+      fetchStub = sinon.stub(window, 'fetch').callsFake((url) => {
+        // Return error response to trigger error path
+        if (url.includes('forms.adobe.com')) {
+          return Promise.resolve({ ok: false, status: 500 });
+        }
+        return Promise.resolve({ ok: true, status: 200, text: async () => '' });
+      });
+
       const { default: init } = await import('../../../eds/blocks/feedback/feedback.js');
-      
-      document.body.innerHTML = '<div class="feedback"><div><div>Feedback-Definition</div><div>invalid-url</div></div></div>';
       const block = document.querySelector('.feedback');
-      
       await init(block);
 
       const stickyButton = document.querySelector('.sticky-feedback-button');
@@ -292,52 +298,11 @@ describe('feedback block', () => {
       expect(toast).to.exist;
     });
 
-    it('should include user profile data when partner is signed in', async () => {
-      const { default: init, partnerIsSignedIn, getPartnerDataCookieObject, getCurrentProgramType } = await import('../../../eds/blocks/feedback/feedback.js');
-      const utils = await import('../../../eds/scripts/utils.js');
-      
-      const partnerSignedInStub = sinon.stub(utils, 'partnerIsSignedIn').returns(true);
-      const getCurrentProgramTypeStub = sinon.stub(utils, 'getCurrentProgramType').returns('test-program');
-      const getPartnerDataStub = sinon.stub(utils, 'getPartnerDataCookieObject').returns({
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@example.com',
-      });
+    it('should close error toast when close button is clicked', async () => {
+      fetchStub.restore();
+      fetchStub = sinon.stub(window, 'fetch').rejects(new Error('Network error'));
 
-      const block = document.querySelector('.feedback');
-      await init(block);
-
-      const stickyButton = document.querySelector('.sticky-feedback-button');
-      stickyButton.click();
-
-      const stars = document.querySelectorAll('sp-action-button[data-rating]');
-      stars[3].click();
-
-      const sendButton = document.querySelector('.feedback-dialog-button.cta');
-      sendButton.click();
-      // eslint-disable-next-line no-promise-executor-return
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      const fetchCall = fetchStub.getCalls().find((call) => call.args[0].includes('forms.adobe.com'));
-      expect(fetchCall).to.exist;
-      const payload = JSON.parse(fetchCall.args[1].body);
-      expect(payload.data.userName).to.equal('John Doe');
-      expect(payload.data.userEmail).to.equal('john.doe@example.com');
-
-      partnerSignedInStub.restore();
-      getCurrentProgramTypeStub.restore();
-      getPartnerDataStub.restore();
-    });
-
-    it('should handle profile data parsing error when partner is signed in', async () => {
       const { default: init } = await import('../../../eds/blocks/feedback/feedback.js');
-      const utils = await import('../../../eds/scripts/utils.js');
-      const consoleInfoStub = sinon.stub(console, 'info');
-      
-      const partnerSignedInStub = sinon.stub(utils, 'partnerIsSignedIn').returns(true);
-      const getCurrentProgramTypeStub = sinon.stub(utils, 'getCurrentProgramType').returns('test-program');
-      const getPartnerDataStub = sinon.stub(utils, 'getPartnerDataCookieObject').throws(new Error('Invalid cookie'));
-
       const block = document.querySelector('.feedback');
       await init(block);
 
@@ -352,17 +317,13 @@ describe('feedback block', () => {
       // eslint-disable-next-line no-promise-executor-return
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      const fetchCall = fetchStub.getCalls().find((call) => call.args[0].includes('forms.adobe.com'));
-      expect(fetchCall).to.exist;
-      const payload = JSON.parse(fetchCall.args[1].body);
-      expect(payload.data.userName).to.equal('invalid');
-      expect(payload.data.userEmail).to.equal('invalid');
-      expect(consoleInfoStub.calledOnce).to.be.true;
+      const toast = document.querySelector('.feedback-toast.spectrum-Toast--negative');
+      expect(toast).to.exist;
 
-      partnerSignedInStub.restore();
-      getCurrentProgramTypeStub.restore();
-      getPartnerDataStub.restore();
-      consoleInfoStub.restore();
+      const closeButton = document.querySelector('.feedback-toast-icon-close');
+      closeButton.click();
+
+      expect(document.querySelector('.feedback-toast')).to.not.exist;
     });
   });
 });

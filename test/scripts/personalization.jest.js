@@ -3,6 +3,12 @@
  */
 import path from 'path';
 import fs from 'fs';
+import {
+  DX_ACCESS_TYPE,
+  DX_COMPLIANCE_STATUS,
+  DX_DESIGNATION_TYPE,
+  DX_PRIMARY_BUSINESS
+} from "../../eds/blocks/utils/dxConstants.js";
 
 const PERSONALIZATION_HIDE_CLASS = 'personalization-hide';
 
@@ -116,6 +122,191 @@ describe('Test personalization.js', () => {
       applyPagePersonalization();
       const goldBlock = document.querySelector('.partner-level-gold');
       expect(goldBlock.classList.contains(PERSONALIZATION_HIDE_CLASS)).toBe(false);
+    });
+  });
+
+  it('Show Partner primary business Solution block', () => {
+    jest.isolateModules(() => {
+      const cookieObject = {
+        DXP: {
+          status: 'MEMBER',
+          firstName: 'Test use',
+          primaryBusiness: [DX_PRIMARY_BUSINESS.SOLUTION]
+        },
+      };
+      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+      const { applyPagePersonalization } = importModules();
+      applyPagePersonalization();
+      const businessSolutionBlock = document.querySelector('.partner-primary-business-solution');
+      expect(businessSolutionBlock.classList.contains(PERSONALIZATION_HIDE_CLASS)).toBe(false);
+    });
+  });
+  it('Show Partner primary business Technology block', () => {
+    jest.isolateModules(() => {
+      const cookieObject = {
+        DXP: {
+          status: 'MEMBER',
+          firstName: 'Test use',
+          primaryBusiness: [DX_PRIMARY_BUSINESS.TECHNOLOGY]
+        },
+      };
+      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+      const { applyPagePersonalization } = importModules();
+      applyPagePersonalization();
+      const businessTechnologyBlock = document.querySelector('.partner-primary-business-technology');
+      expect(businessTechnologyBlock.classList.contains(PERSONALIZATION_HIDE_CLASS)).toBe(false);
+    });
+  });
+  it('Show Access Type blocks', () => {
+    jest.isolateModules(() => {
+      const cookieObject = {
+        DXP: {
+          status: 'MEMBER',
+          firstName: 'Test use',
+          accessType: [DX_ACCESS_TYPE.BILLING_ADMIN, DX_ACCESS_TYPE.SALES_CENTER_ADMIN, DX_ACCESS_TYPE.ADMIN]
+        },
+      };
+      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+      const { applyPagePersonalization } = importModules();
+      applyPagePersonalization();
+      const billingAdminBlock = document.querySelector('.partner-billing-admin');
+      expect(billingAdminBlock.classList.contains(PERSONALIZATION_HIDE_CLASS)).toBe(false);
+      const SalesCenterAdminBlock = document.querySelector('.partner-salescenter-admin');
+      expect(SalesCenterAdminBlock.classList.contains(PERSONALIZATION_HIDE_CLASS)).toBe(false);
+      const adminBlock = document.querySelector('.partner-admin');
+      expect(adminBlock.classList.contains(PERSONALIZATION_HIDE_CLASS)).toBe(false);
+    });
+  });
+  it('Show Access Type (user) block', () => {
+    jest.isolateModules(() => {
+      const cookieObject = {
+        DXP: {
+          status: 'MEMBER',
+          firstName: 'Test use',
+          accessType: []
+        },
+      };
+      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+      const { applyPagePersonalization } = importModules();
+      applyPagePersonalization();
+      const partnerUserBlock = document.querySelector('.partner-user');
+      expect(partnerUserBlock.classList.contains(PERSONALIZATION_HIDE_CLASS)).toBe(false);
+    });
+  });
+  it('Show Access Type NOT Sales Center admin block', () => {
+    jest.isolateModules(() => {
+      const cookieObject = {
+        DXP: {
+          status: 'MEMBER',
+          firstName: 'Test use',
+          accessType: [DX_ACCESS_TYPE.BILLING_ADMIN, DX_ACCESS_TYPE.ADMIN]
+        },
+      };
+      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+      const { applyPagePersonalization } = importModules();
+      applyPagePersonalization();
+      const partnerNotSalesCenterBlock = document.querySelector('.partner-not-salescenter-admin');
+      expect(partnerNotSalesCenterBlock.classList.contains(PERSONALIZATION_HIDE_CLASS)).toBe(false);
+    });
+  });
+  it('Show Designation Type blocks', () => {
+    jest.isolateModules(() => {
+      const cookieObject = {
+        DXP: {
+          status: 'MEMBER',
+          firstName: 'Test use',
+          designationType: [DX_DESIGNATION_TYPE.LEARNING_AND_DEVELOPMENT, DX_DESIGNATION_TYPE.LEGAL_AND_COMPLIANCE]
+        },
+      };
+      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+      const { applyPagePersonalization } = importModules();
+      applyPagePersonalization();
+      const designationLearningBlock = document.querySelector('.partner-designation-learning');
+      expect(designationLearningBlock.classList.contains(PERSONALIZATION_HIDE_CLASS)).toBe(false);
+      const designationLegalBlock = document.querySelector('.partner-designation-legal');
+      expect(designationLegalBlock.classList.contains(PERSONALIZATION_HIDE_CLASS)).toBe(false);
+    });
+  });
+  it('Show Locked Compliance Not Completed block', () => {
+    jest.isolateModules(() => {
+      const cookieObject = {
+        DXP: {
+          status: 'MEMBER',
+          firstName: 'Test use',
+          specialState: 'locked',
+          complianceStatus: DX_COMPLIANCE_STATUS.NOT_COMPLETED
+        },
+      };
+      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+      const { applyPagePersonalization } = importModules();
+      applyPagePersonalization();
+      const lockedComplianceNotCompletedBlock = document.querySelector('.partner-locked-compliance');
+      expect(lockedComplianceNotCompletedBlock.classList.contains(PERSONALIZATION_HIDE_CLASS)).toBe(false);
+    });
+  });
+  it('Show Locked Compliance Not Completed block', () => {
+    jest.isolateModules(() => {
+      const cookieObject = {
+        DXP: {
+          status: 'MEMBER',
+          firstName: 'Test use',
+          specialState: 'locked',
+          complianceStatus: DX_COMPLIANCE_STATUS.COMPLETED
+        },
+      };
+      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+      const { applyPagePersonalization } = importModules();
+      applyPagePersonalization();
+      const lockedComplianceCompletedBlock = document.querySelector('.partner-locked-payment');
+      expect(lockedComplianceCompletedBlock.classList.contains(PERSONALIZATION_HIDE_CLASS)).toBe(false);
+    });
+  });
+  it('Show Locked Compliance Expiry date in the past block', () => {
+    jest.isolateModules(() => {
+      const cookieObject = {
+        DXP: {
+          status: 'MEMBER',
+          firstName: 'Test use',
+          specialState: 'locked-compliance-past'
+        },
+      };
+      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+      const { applyPagePersonalization } = importModules();
+      applyPagePersonalization();
+      const lockedCompliancePastBlock = document.querySelector('.partner-locked-compliance-past');
+      expect(lockedCompliancePastBlock.classList.contains(PERSONALIZATION_HIDE_CLASS)).toBe(false);
+    });
+  });
+  it('Show Locked Compliance Expiry date in the future block (Missing payment)', () => {
+    jest.isolateModules(() => {
+      const cookieObject = {
+        DXP: {
+          status: 'MEMBER',
+          firstName: 'Test use',
+          specialState: 'locked-payment-future',
+        },
+      };
+      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+      const { applyPagePersonalization } = importModules();
+      applyPagePersonalization();
+      const lockedPaymentFutureBlock = document.querySelector('.partner-locked-payment-future');
+      expect(lockedPaymentFutureBlock.classList.contains(PERSONALIZATION_HIDE_CLASS)).toBe(false);
+    });
+  });
+  it('Show Submitted in Review block', () => {
+    jest.isolateModules(() => {
+      const cookieObject = {
+        DXP: {
+          status: 'MEMBER',
+          firstName: 'Test use',
+          specialState: 'submitted-in-review',
+        },
+      };
+      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+      const { applyPagePersonalization } = importModules();
+      applyPagePersonalization();
+      const submittedInReviewBlock = document.querySelector('.partner-submitted-in-review');
+      expect(submittedInReviewBlock.classList.contains(PERSONALIZATION_HIDE_CLASS)).toBe(false);
     });
   });
   it('Show partner-level-platinum but don\'t show partner-level-gold block', () => {

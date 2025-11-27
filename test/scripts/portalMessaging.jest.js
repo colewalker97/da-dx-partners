@@ -10,9 +10,9 @@ jest.mock('https://test-milo-libs.com/blocks/modal/modal.js', () => ({
 jest.mock('../../eds/scripts/personalizationConfigDX.js', () => ({
   PERSONALIZATION_PLACEHOLDERS: {},
   PERSONALIZATION_CONDITIONS: {
-    'submitted-in-review': () => true,
-    'locked-compliance-past': () => true,
-    'locked-payment-future': () => true,
+    'partner-submitted-in-review': () => true,
+    'partner-locked-compliance-past': () => true,
+    'partner-locked-payment-future': () => true,
   },
 }));
 jest.mock('../../eds/scripts/personalization.js', () => ({

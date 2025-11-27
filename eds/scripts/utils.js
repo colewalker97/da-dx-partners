@@ -9,7 +9,7 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-import {DX_PROGRAM_TYPE, DX_SPECIAL_STATE} from "../blocks/utils/dxConstants.js";
+import {DX_COMPLIANCE_STATUS, DX_PROGRAM_TYPE, DX_SPECIAL_STATE} from "../blocks/utils/dxConstants.js";
 
 const PARTNER_ERROR_REDIRECTS_COUNT_COOKIE = 'partner_redirects_count';
 const MAX_PARTNER_ERROR_REDIRECTS_COUNT = 3;
@@ -278,6 +278,13 @@ export function partnerDataCookieContainsValue(key, value) {
   const cookieValue = getPartnerDataCookieValue(key);
   if (!cookieValue) return false;
   return cookieValue.includes(value.toLowerCase());
+}
+
+export function isAccountLocked() {
+  if (!partnerIsSignedIn()) return false;
+  return partnerDataCookieContainsValue('specialstate', DX_SPECIAL_STATE.LOCKED) ||
+    partnerDataCookieContainsValue('specialstate', DX_SPECIAL_STATE.LOCKED_COMPLIANCE_PAST) ||
+    partnerDataCookieContainsValue('specialstate', DX_SPECIAL_STATE.LOCKED_PAYMENT_FUTURE);
 }
 
 export function getDaysFromRegistration() {

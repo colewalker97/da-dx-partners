@@ -8,7 +8,7 @@ import {
   PERSONALIZATION_MARKER,
   PROCESSED_MARKER,
   PERSONALIZATION_CONDITIONS,
-  PROFILE_PERSONALIZATION_ACTIONS, LEVEL_CONDITION,
+  PROFILE_PERSONALIZATION_ACTIONS, LEVEL_CONDITION, NEGATION_PREFIX,
 } from './personalizationConfigDX.js';
 import {
   PERSONALIZATION_HIDE,
@@ -30,12 +30,24 @@ export function personalizePlaceholders(placeholders, context = document, progra
   });
 }
 
+function isNegatedCondition(condition) {
+  return condition.startsWith(NEGATION_PREFIX);
+}
+
+function getBaseConditionName(condition) {
+  if (!isNegatedCondition(condition)) return condition;
+  return condition.replace(NEGATION_PREFIX, 'partner-');
+}
+
 function shouldHide(conditions, conditionsConfig = PERSONALIZATION_CONDITIONS) {
   // eslint-disable-next-line max-len
   const partnerLevelConditions = conditions.filter((condition) => condition.startsWith(LEVEL_CONDITION));
 
-  // eslint-disable-next-line max-len
-  const otherConditions = conditions.filter((condition) => !condition.startsWith(LEVEL_CONDITION) && Object.keys(PERSONALIZATION_CONDITIONS).includes(condition));
+  const otherConditions = conditions.filter((condition) => {
+    if (condition.startsWith(LEVEL_CONDITION)) return false;
+    const baseCondition = getBaseConditionName(condition);
+    return Object.prototype.hasOwnProperty.call(conditionsConfig, baseCondition);
+  });
 
   const matchesPartnerLevel = partnerLevelConditions.length === 0
     || partnerLevelConditions.some((condition) => {
@@ -43,7 +55,11 @@ function shouldHide(conditions, conditionsConfig = PERSONALIZATION_CONDITIONS) {
       return conditionsConfig[LEVEL_CONDITION]?.(level);
     });
 
-  const matchesOtherConditions = otherConditions.every((condition) => conditionsConfig[condition]);
+  const matchesOtherConditions = otherConditions.every((condition) => {
+    const baseCondition = getBaseConditionName(condition);
+    let value = conditionsConfig[baseCondition];
+    return isNegatedCondition(condition) ? !value : value;
+  });
 
   return !(matchesPartnerLevel && matchesOtherConditions);
 }

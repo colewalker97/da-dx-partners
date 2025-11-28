@@ -33,8 +33,7 @@ export const PROCESSED_MARKER = '-processed';
 export const NEGATION_PREFIX = 'partner-not-'
 
 export const PERSONALIZATION_CONDITIONS = {
-  'partner-not-member': signedInNonMember(),
-  'partner-not-signed-in': !partnerIsSignedIn(),
+  'partner-signed-in': partnerIsSignedIn(),
   'partner-member': isMember(),
   'partner-sales-access': hasSalesCenterAccess(),
   'partner-level': (level) => PARTNER_LEVEL === level,

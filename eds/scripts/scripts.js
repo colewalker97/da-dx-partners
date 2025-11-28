@@ -16,7 +16,7 @@ import {
   preloadResources,
   redirectLoggedinPartner,
   updateNavigation,
-  updateFooter, updateIMSConfig, PARTNER_LOGIN_QUERY,
+  updateFooter, updateIMSConfig, PARTNER_LOGIN_QUERY, setFeedback
 } from './utils.js';
 import { applyPagePersonalization } from './personalization.js';
 import { rewriteLinks } from './rewriteLinks.js';
@@ -107,6 +107,7 @@ async function loadPage() {
   const { loadArea, setConfig, getConfig } = await import(`${miloLibs}/utils/utils.js`);
 
   setConfig({ ...CONFIG, miloLibs });
+  await setFeedback(getConfig);
   await loadArea();
   applyPagePersonalization();
   rewriteLinks(document);

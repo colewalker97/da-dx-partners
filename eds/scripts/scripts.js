@@ -45,9 +45,10 @@ const CONFIG = {
   // fallbackRouting: 'off',
   locales: {
     '': { ietf: 'en-US', tk: 'hah7vzn.css' },
-    de: { ietf: 'de-DE', tk: 'hah7vzn.css' },
-    kr: { ietf: 'ko-KR', tk: 'zfo3ouc' },
   },
+  local: { edgeConfigId: '04688385-4eb5-41af-9875-91f21eea9a5e' },
+  stage: { edgeConfigId: '04688385-4eb5-41af-9875-91f21eea9a5e' },
+  prod: { },
 };
 
 (function removePartnerLoginQuery() {

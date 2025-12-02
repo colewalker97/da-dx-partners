@@ -18,22 +18,42 @@ export const CAAS_TAGS_URL = 'https://www.adobe.com/chimera-api/tags';
 /**
  * The decision engine for where to get Milo's libs from.
  */
+// export const [setLibs, getLibs] = (() => {
+//   let libs;
+//   return [
+//     (prodLibs, location) => {
+//       libs = (() => {
+//         const { hostname, search, origin } = location || window.location;
+//         if (origin.endsWith('adobe.com')) {
+//           return origin + prodLibs;
+//         }
+//         const partnerBranch = hostname.startsWith('main') ? 'main' : 'stage';
+//         const branch = new URLSearchParams(search).get('milolibs') || partnerBranch;
+//         if (branch === 'local') return 'http://localhost:6456/libs';
+//         return branch.includes('--') ? `https://${branch}.aem.live/libs` : `https://${branch}--milo--adobecom.aem.live/libs`;
+//       })();
+//       return libs;
+//     }, () => libs,
+//   ];
+// })();
+
 export const [setLibs, getLibs] = (() => {
   let libs;
   return [
     (prodLibs, location) => {
       libs = (() => {
-        const { hostname, search, origin } = location || window.location;
-        if (origin.endsWith('adobe.com')) {
-          return origin + prodLibs;
-        }
-        const partnerBranch = hostname.startsWith('main') ? 'main' : 'stage';
-        const branch = new URLSearchParams(search).get('milolibs') || partnerBranch;
+        const { search } = location || window.location;
+        const partnerBranch = 'main';
+        const branch =
+          new URLSearchParams(search).get('milolibs') || partnerBranch;
         if (branch === 'local') return 'http://localhost:6456/libs';
-        return branch.includes('--') ? `https://${branch}.aem.live/libs` : `https://${branch}--milo--adobecom.aem.live/libs`;
+        return branch.includes('--')
+          ? `https://${branch}.aem.page/libs`
+          : `https://${branch}--milo--colewalker97.aem.page/libs`;
       })();
       return libs;
-    }, () => libs,
+    },
+    () => libs,
   ];
 })();
 

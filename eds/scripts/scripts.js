@@ -31,10 +31,13 @@ const STYLES = '/eds/styles/styles.css';
 const LIBS = '/libs';
 
 const isProd = prodHosts.includes(window.location.host);
+console.log('scripts.js - isProd:', isProd);
+console.log('scripts.js - window.location.host:', window.location.host);
+console.log('scripts.js - prodHosts:', prodHosts);
 // required for react-include component: react-app may need different ims client ids.
 let imsClientId = document.querySelector(`meta[name=${isProd? 'ims_client_id' : 'ims_client_id_stage' }]`)?.content
 imsClientId = imsClientId || (isProd ? 'MILO_PARTNERS_PROD' : 'MILO_PARTNERS_STAGE');
-
+console.log('scripts.js - imsClientId:', imsClientId);
 // Add any config options.
 const CONFIG = {
   codeRoot: '/eds',

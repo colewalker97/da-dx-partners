@@ -61,14 +61,13 @@ export const [setLibs, getLibs] = (() => {
   ];
 })();
 
-// export const prodHosts = [
-//   'main--da-dx-partners--adobecom.aem.page',
-//   'main--da-dx-partners--adobecom.aem.live',
-//   'partners.adobe.com',
-//   'partnerspreview.adobe.com',
-// ];
-
-export const prodHosts = 'main--da-dx-partners--colewalker97.aem.page';
+export const prodHosts = [
+  'main--da-dx-partners--adobecom.aem.page',
+  'main--da-dx-partners--adobecom.aem.live',
+  'partners.adobe.com',
+  'partnerspreview.adobe.com',
+  'main--da-dx-partners--colewalker97.aem.page',
+];
 
 /*
  * ------------------------------------------------------------
@@ -418,12 +417,16 @@ export function redirectLoggedinPartner() {
 }
 export function updateIMSConfig() {
   const isSignedIn = partnerIsSignedIn();
+  console.log('updateIMSConfig - isSignedIn:', isSignedIn);
+  console.log('updateIMSConfig - Current host:', window.location.host);
+  console.log('updateIMSConfig - Is in prodHosts:', prodHosts.includes(window.location.host));
   const imsReady = setInterval(() => {
     if (!window.adobeIMS) return;
     if (isSignedIn && !window.adobeIMS.isSignedInUser()) return;
     clearInterval(imsReady);
     let target;
     const partnerLogin = !window.adobeIMS.isSignedInUser();
+    console.log('updateIMSConfig - partnerLogin:', partnerLogin);
     if (partnerLogin) {
       target = getMetadataContent('adobe-target-after-login');
     } else {
@@ -431,6 +434,7 @@ export function updateIMSConfig() {
         getMetadataContent('adobe-target-after-logout') ??
         getProgramHomePage(window.location.pathname);
     }
+    console.log('updateIMSConfig - target from metadata:', target);
 
     const targetUrl = new URL(window.location.href);
     // eslint-disable-next-line chai-friendly/no-unused-expressions
@@ -443,7 +447,10 @@ export function updateIMSConfig() {
       }
     }
 
+    console.log('updateIMSConfig - Setting redirect_uri to:', targetUrl.toString());
+    console.log('updateIMSConfig - Current IMS client ID:', window.adobeIMS.adobeIdData.client_id);
     window.adobeIMS.adobeIdData.redirect_uri = targetUrl.toString();
+    console.log('updateIMSConfig - redirect_uri after setting:', window.adobeIMS.adobeIdData.redirect_uri);
   }, 500);
 }
 

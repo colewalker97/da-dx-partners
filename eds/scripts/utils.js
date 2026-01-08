@@ -9,7 +9,11 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-import {DX_COMPLIANCE_STATUS, DX_PROGRAM_TYPE, DX_SPECIAL_STATE} from "../blocks/utils/dxConstants.js";
+import {
+  DX_COMPLIANCE_STATUS,
+  DX_PROGRAM_TYPE,
+  DX_SPECIAL_STATE,
+} from '../blocks/utils/dxConstants.js';
 
 const PARTNER_ERROR_REDIRECTS_COUNT_COOKIE = 'partner_redirects_count';
 const MAX_PARTNER_ERROR_REDIRECTS_COUNT = 3;
@@ -62,6 +66,7 @@ export const prodHosts = [
   'main--da-dx-partners--adobecom.aem.live',
   'partners.adobe.com',
   'partnerspreview.adobe.com',
+  'main--da-dx-partners--colewalker97.aem.page',
 ];
 
 /*
@@ -97,9 +102,10 @@ export function getLocale(locales, pathname = window.location.pathname) {
   if (localeString === LANGSTORE) {
     locale.prefix = `/${localeString}/${split[2]}`;
     if (
-      Object.values(locales)
-        .find((loc) => loc.ietf?.startsWith(split[2]))?.dir === 'rtl'
-    ) locale.dir = 'rtl';
+      Object.values(locales).find((loc) => loc.ietf?.startsWith(split[2]))
+        ?.dir === 'rtl'
+    )
+      locale.dir = 'rtl';
     return locale;
   }
   const isUS = locale.ietf === 'en-US';
@@ -132,10 +138,16 @@ function preloadLit(miloLibs) {
 
 export function getProgramType(path) {
   switch (true) {
-    case /\/(digitalexperience|eds|directory|join|self-service-forms\/definition)\//.test(path) || /^\/(directory|join|)$/.test(path): return DX_PROGRAM_TYPE;
-    case /channelpartners/.test(path): return 'cpp';
-    case /channelpartnerassets/.test(path): return 'cpp';
-    default: return '';
+    case /\/(digitalexperience|eds|directory|join|self-service-forms\/definition)\//.test(
+      path
+    ) || /^\/(directory|join|)$/.test(path):
+      return DX_PROGRAM_TYPE;
+    case /channelpartners/.test(path):
+      return 'cpp';
+    case /channelpartnerassets/.test(path):
+      return 'cpp';
+    default:
+      return '';
   }
 }
 
@@ -157,16 +169,18 @@ export function getCurrentProgramType() {
 export function getCookieValue(key) {
   const cookies = document.cookie.split(';').map((cookie) => cookie.trim());
   const cookie = cookies.find((el) => el.startsWith(`${key}=`));
-  return cookie?.substring((`${key}=`).length);
+  return cookie?.substring(`${key}=`.length);
 }
 export function getPartnerDataCookieValue(key, programType = DX_PROGRAM_TYPE) {
   try {
-    if(!programType){
+    if (!programType) {
       programType = getCurrentProgramType();
     }
     const partnerDataCookie = getCookieValue('partner_data');
     if (!partnerDataCookie) return;
-    const partnerDataObj = JSON.parse(decodeURIComponent(partnerDataCookie.toLowerCase()));
+    const partnerDataObj = JSON.parse(
+      decodeURIComponent(partnerDataCookie.toLowerCase())
+    );
     return partnerDataObj?.[programType]?.[key];
   } catch (error) {
     console.error('Error parsing partner data object:', error);
@@ -179,14 +193,19 @@ function extractTableCollectionTags(el) {
   let tableCollectionTags = [];
   Array.from(el.children).forEach((row) => {
     const cols = Array.from(row.children);
-    const rowTitle = cols[0].textContent.trim().toLowerCase().replace(/ /g, '-');
+    const rowTitle = cols[0].textContent
+      .trim()
+      .toLowerCase()
+      .replace(/ /g, '-');
     const colsContent = cols.slice(1);
     if (rowTitle === 'collection-tags') {
       const [collectionTagsEl] = colsContent;
-      const collectionTags = Array.from(collectionTagsEl.querySelectorAll('li'), (li) =>
-        li.textContent ? `"${li.textContent.trim().toLowerCase()}"` : ''
+      const collectionTags = Array.from(
+        collectionTagsEl.querySelectorAll('li'),
+        (li) =>
+          li.textContent ? `"${li.textContent.trim().toLowerCase()}"` : ''
       );
-      tableCollectionTags.push(collectionTags)
+      tableCollectionTags.push(collectionTags);
     }
   });
 
@@ -201,11 +220,11 @@ function getPartnerLevelParams(portal) {
 
   // Build the NOT conditions for all partner levels (excluding the target one)
   const notConditions = partnerLevels
-    .map(level => `NOT+"${partnerTagBase}${level}"`)
+    .map((level) => `NOT+"${partnerTagBase}${level}"`)
     .join('+AND+');
 
-  if(partnerLevel){
-    return `("${partnerTagBase}${partnerLevel}"+OR+(${notConditions}))`
+  if (partnerLevel) {
+    return `("${partnerTagBase}${partnerLevel}"+OR+(${notConditions}))`;
   } else {
     return `(${notConditions})`;
   }
@@ -219,7 +238,10 @@ function checkForQaContent(el) {
   for (let i = el.children.length - 1; i >= 0; i--) {
     const row = el.children[i];
 
-    const rowTitle = row.children[0]?.innerText?.trim().toLowerCase().replace(/ /g, '-');
+    const rowTitle = row.children[0]?.innerText
+      ?.trim()
+      .toLowerCase()
+      .replace(/ /g, '-');
     if (rowTitle?.includes('qa-content')) {
       return true;
     }
@@ -232,21 +254,21 @@ function getComplexQueryParams(el) {
   const tableTags = extractTableCollectionTags(el);
 
   const groupedTagExpressions = tableTags
-    .filter(group => group.length)
-    .map(group => `(${group.join('+AND+')})`);
+    .filter((group) => group.length)
+    .map((group) => `(${group.join('+AND+')})`);
   let fullQuery = '';
-  if (groupedTagExpressions.length){
-    fullQuery  = `(${groupedTagExpressions.join('+OR+')})`;
+  if (groupedTagExpressions.length) {
+    fullQuery = `(${groupedTagExpressions.join('+OR+')})`;
   }
-
 
   const qaContentTag = '"caas:adobe-partners/qa-content"';
   if (!checkForQaContent(el)) {
-    fullQuery += `${fullQuery.length>0?'+AND+':''}(+NOT+${qaContentTag})`;
+    fullQuery += `${fullQuery.length > 0 ? '+AND+' : ''}(+NOT+${qaContentTag})`;
   }
 
   const partnerLevelParams = getPartnerLevelParams(DX_PROGRAM_TYPE);
-  if (partnerLevelParams) fullQuery += `${fullQuery.length>0?'+AND+':''}${partnerLevelParams}`;
+  if (partnerLevelParams)
+    fullQuery += `${fullQuery.length > 0 ? '+AND+' : ''}${partnerLevelParams}`;
 
   return fullQuery;
 }
@@ -277,13 +299,16 @@ export function isPartnerNewlyRegistered() {
   const now = new Date();
 
   const differenceInMilliseconds = now - newestCreatedDate;
-  const differenceInDays = Math.abs(differenceInMilliseconds) / (1000 * 60 * 60 * 24);
+  const differenceInDays =
+    Math.abs(differenceInMilliseconds) / (1000 * 60 * 60 * 24);
 
   return differenceInMilliseconds > 0 && differenceInDays < 31;
 }
 
 export function isMember() {
-  return getPartnerDataCookieObject(getCurrentProgramType())?.status === 'MEMBER';
+  return (
+    getPartnerDataCookieObject(getCurrentProgramType())?.status === 'MEMBER'
+  );
 }
 
 export function partnerIsSignedIn() {
@@ -302,9 +327,17 @@ export function partnerDataCookieContainsValue(key, value) {
 
 export function isAccountLocked() {
   if (!partnerIsSignedIn()) return false;
-  return partnerDataCookieContainsValue('specialstate', DX_SPECIAL_STATE.LOCKED) ||
-    partnerDataCookieContainsValue('specialstate', DX_SPECIAL_STATE.LOCKED_COMPLIANCE_PAST) ||
-    partnerDataCookieContainsValue('specialstate', DX_SPECIAL_STATE.LOCKED_PAYMENT_FUTURE);
+  return (
+    partnerDataCookieContainsValue('specialstate', DX_SPECIAL_STATE.LOCKED) ||
+    partnerDataCookieContainsValue(
+      'specialstate',
+      DX_SPECIAL_STATE.LOCKED_COMPLIANCE_PAST
+    ) ||
+    partnerDataCookieContainsValue(
+      'specialstate',
+      DX_SPECIAL_STATE.LOCKED_PAYMENT_FUTURE
+    )
+  );
 }
 
 export function getDaysFromRegistration() {
@@ -339,7 +372,12 @@ export function getNodesByXPath(query, context = document) {
   if (!context) {
     return nodes;
   }
-  const xpathResult = document.evaluate(query, context, null, XPathResult.ANY_TYPE);
+  const xpathResult = document.evaluate(
+    query,
+    context,
+    null,
+    XPathResult.ANY_TYPE
+  );
   let current = xpathResult?.iterateNext();
   while (current) {
     nodes.push(current);
@@ -358,10 +396,16 @@ export function getMetadataContent(name) {
 
 export function redirectLoggedinPartner() {
   if (!isMember()) return;
-  const partnerErrorRedirectsCount = getCookieValue(PARTNER_ERROR_REDIRECTS_COUNT_COOKIE);
+  const partnerErrorRedirectsCount = getCookieValue(
+    PARTNER_ERROR_REDIRECTS_COUNT_COOKIE
+  );
   if (partnerErrorRedirectsCount) {
     const count = Number(partnerErrorRedirectsCount);
-    if (count && Number.isInteger(count) && count >= MAX_PARTNER_ERROR_REDIRECTS_COUNT) {
+    if (
+      count &&
+      Number.isInteger(count) &&
+      count >= MAX_PARTNER_ERROR_REDIRECTS_COUNT
+    ) {
       deleteCookieValue(PARTNER_ERROR_REDIRECTS_COUNT_COOKIE);
       return;
     }
@@ -382,7 +426,9 @@ export function updateIMSConfig() {
     if (partnerLogin) {
       target = getMetadataContent('adobe-target-after-login');
     } else {
-      target = getMetadataContent('adobe-target-after-logout') ?? getProgramHomePage(window.location.pathname);
+      target =
+        getMetadataContent('adobe-target-after-logout') ??
+        getProgramHomePage(window.location.pathname);
     }
 
     const targetUrl = new URL(window.location.href);
@@ -407,7 +453,8 @@ export function getMetadata(name) {
 function setApiParams(api, block) {
   const { el, collectionTag, ietf } = block;
   const complexQueryParams = getComplexQueryParams(el, collectionTag);
-  if (complexQueryParams) api.searchParams.set('complexQuery', complexQueryParams);
+  if (complexQueryParams)
+    api.searchParams.set('complexQuery', complexQueryParams);
 
   const [language, country] = ietf.split('-');
   if (language && country) {
@@ -420,31 +467,42 @@ function setApiParams(api, block) {
 
 function getAuthoredList(col) {
   let authoredList = col.querySelectorAll('li');
-  if(authoredList && authoredList.length){
-    return Array.from(authoredList).map(li => li.textContent.trim()).join(',');
+  if (authoredList && authoredList.length) {
+    return Array.from(authoredList)
+      .map((li) => li.textContent.trim())
+      .join(',');
   }
   return col.textContent.trim();
 }
 
 export function getCaasUrl(block) {
   let isNonProd = !prodHosts.includes(window.location.host);
-  const domain = `${isNonProd ? 'https://14257-chimera-stage.adobeioruntime.net/api/v1/web/chimera-0.0.1' : 'https://www.adobe.com/chimera-api'}`;
+  const domain = `${
+    isNonProd
+      ? 'https://14257-chimera-stage.adobeioruntime.net/api/v1/web/chimera-0.0.1'
+      : 'https://www.adobe.com/chimera-api'
+  }`;
   let sources = 'da-dx-partners';
   let featuredQuery = '';
   Array.from(block.el.children).forEach((row) => {
     const cols = Array.from(row.children);
-    const rowTitle = cols[0].textContent.trim().toLowerCase().replace(/ /g, '-');
-    if (rowTitle === 'sources' && cols.length>1) {
-      sources = getAuthoredList(cols[1])
+    const rowTitle = cols[0].textContent
+      .trim()
+      .toLowerCase()
+      .replace(/ /g, '-');
+    if (rowTitle === 'sources' && cols.length > 1) {
+      sources = getAuthoredList(cols[1]);
     }
-    if(isNonProd && rowTitle === 'featured-cards-stage' && cols.length>1){
-      featuredQuery = `&featuredCards=${(getAuthoredList(cols[1]))}`;
+    if (isNonProd && rowTitle === 'featured-cards-stage' && cols.length > 1) {
+      featuredQuery = `&featuredCards=${getAuthoredList(cols[1])}`;
     }
-    if(!isNonProd && rowTitle === 'featured-cards' && cols.length>1){
-      featuredQuery = `&featuredCards=${(getAuthoredList(cols[1]))}`;
+    if (!isNonProd && rowTitle === 'featured-cards' && cols.length > 1) {
+      featuredQuery = `&featuredCards=${getAuthoredList(cols[1])}`;
     }
   });
-  const api = new URL(`${domain}/collection?originSelection=${sources}${featuredQuery}&draft=false&flatFile=false&expanded=true`);
+  const api = new URL(
+    `${domain}/collection?originSelection=${sources}${featuredQuery}&draft=false&flatFile=false&expanded=true`
+  );
   return setApiParams(api, block);
 }
 
@@ -490,7 +548,9 @@ export function updateNavigation() {
   if (!gnavMeta) return;
   let { content } = gnavMeta;
   if (isDxpMember()) {
-    content = getMetadataContent('gnav-loggedin-source') ?? '/eds/partners-shared/dx-loggedin-gnav';
+    content =
+      getMetadataContent('gnav-loggedin-source') ??
+      '/eds/partners-shared/dx-loggedin-gnav';
   }
   gnavMeta.content = content;
 }
@@ -500,7 +560,9 @@ export function updateFooter() {
   if (!footerMeta) return;
   let { content } = footerMeta;
   if (isDxpMember()) {
-    content = getMetadataContent('footer-loggedin-source') ?? '/eds/partners-shared/dx-loggedin-footer';
+    content =
+      getMetadataContent('footer-loggedin-source') ??
+      '/eds/partners-shared/dx-loggedin-footer';
   }
   footerMeta.content = content;
 }
@@ -516,7 +578,8 @@ export async function setFeedback(getConfig) {
 
   try {
     const response = await fetch(`${url}.plain.html`);
-    if (!response.ok) throw new Error(`Response was not ok ${response.statusText}`);
+    if (!response.ok)
+      throw new Error(`Response was not ok ${response.statusText}`);
 
     const data = await response.text();
     const parser = new DOMParser();

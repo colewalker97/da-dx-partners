@@ -102,7 +102,7 @@ function setUpPage() {
 async function loadPage() {
   applyPagePersonalization();
   setUpPage();
-  // redirectLoggedinPartner();
+  redirectLoggedinPartner();
   updateIMSConfig();
   await preloadResources(CONFIG.locales, miloLibs);
   const { loadArea, setConfig, getConfig } = await import(`${miloLibs}/utils/utils.js`);

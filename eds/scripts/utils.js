@@ -61,13 +61,14 @@ export const [setLibs, getLibs] = (() => {
   ];
 })();
 
-export const prodHosts = [
-  'main--da-dx-partners--adobecom.aem.page',
-  'main--da-dx-partners--adobecom.aem.live',
-  'partners.adobe.com',
-  'partnerspreview.adobe.com',
-  'main--da-dx-partners--colewalker97.aem.page',
-];
+// export const prodHosts = [
+//   'main--da-dx-partners--adobecom.aem.page',
+//   'main--da-dx-partners--adobecom.aem.live',
+//   'partners.adobe.com',
+//   'partnerspreview.adobe.com',
+// ];
+
+export const prodHosts = 'main--da-dx-partners--colewalker97.aem.page';
 
 /*
  * ------------------------------------------------------------
